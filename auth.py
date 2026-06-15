@@ -78,11 +78,3 @@ def verify_token(credentials:HTTPAuthorizationCredentials=Depends(security)):
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
     
-    
-
-
-
-    
-
-
-

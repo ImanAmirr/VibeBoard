@@ -288,4 +288,3 @@ def get_flashback(db=Depends(getdb),user=Depends(verify_token)):
             "message":fb["message"],
             "created_at":fb["created_at"]
         })
-    return flashbacks
