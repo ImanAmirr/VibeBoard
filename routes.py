@@ -1,290 +1,124 @@
 from fastapi import APIRouter,status,HTTPException,Depends
 from bson import ObjectId
 from database import items_collection,boards_collection,flashback_collection,users_collection,getdb
-from models import Item,ItemResponse,Board,BoardResponse,FlashbackResponse
+from models import Item,ItemResponse,Board,BoardResponse,FlashbackResponse,User,UserResponse
 from bson.errors import InvalidId
 from datetime import datetime, timezone
-from auth import verify_token
+from auth import verify_token,admin_required
+from services import (
+    create_item as create_item_service,
+    get_items as get_items_service,
+    get_item as get_item_service,
+    create_board as create_board_service,
+    get_boards as get_boards_service,
+    get_board as get_board_service,
+    update_board as update_board_service,
+    update_item as update_item_service,
+    delete_board as delete_board_service,
+    delete_item as delete_item_service,
+    get_flashback as get_flashback_service,
+    get_boarditems as get_boarditems_service,
+    get_users as get_users_service,
+    get_user as get_user_service,
+    delete_user as delete_user_service,
+    make_admin as make_admin_service,
+    make_user as make_user_service,
+    get_all_boards as get_all_boards_service,
+    delete_any_board as delete_any_board_service
+    )
 
-router=APIRouter()
+router = APIRouter()
 
 #create an item(save to board)
 @router.post("/items",status_code=status.HTTP_201_CREATED)
 def create_item(item:Item,db=Depends(getdb),user=Depends(verify_token)):
+    return create_item_service(item,db,user)
 
-    try:
-        board_obj_id=ObjectId(item.board_id)
-    except InvalidId:
-        raise HTTPException(status_code=400,detail="invalid board id")
-    
-    board=db.boards.find_one({"_id":board_obj_id})
-    if not board:
-        raise HTTPException(status_code=404,detail="board not found")
-    
-    data_item=item.model_dump()
-
-    data_item["user_id"]=user["id"]
-
-    data_item["created_at"]=datetime.now(timezone.utc)
-    data_item["updated_at"]=datetime.now(timezone.utc)
-
-    db.items.insert_one(data_item) 
-
-    return {
-        "message":"item created",
-        "item":data_item
-    }
-    
 #get all items(see board)
 @router.get("/items",response_model=list[ItemResponse])
 def get_items(vibe:str=None,search:str=None, limit:int=5,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
-
-    query={}
-    if vibe:
-        query["vibe"]=vibe
-    
-    if search:
-        query["title"]={'$regex':search,'$options':'i'}
-    
-    items_cursor=db.items.find({**query,'user_id':user["id"]}).sort("_id",-1).skip(skip).limit(limit)
-
-    items=[]
-    for item in items_cursor:
-        items.append({
-            "id": str(item["_id"]),
-            "title":item["title"],
-            "url":item["url"],
-            "vibe":item["vibe"],
-            "note":item.get("note"),
-            "board_id":item["board_id"],
-            "created_at":item["created_at"],
-            "updated_at":item["updated_at"]
-        })
-    return items
+    return get_items_service(vibe,search,limit,skip,db,user)
 
 #get a single item(from board)
 @router.get("/items/{id}",response_model=ItemResponse)
 def get_item(id:str,db=Depends(getdb),user=Depends(verify_token)):
-
-    try:
-        obj_id=ObjectId(id)
-    except InvalidId:
-        raise HTTPException(status_code=400,detail="invalid id")
-    
-    item=db.items.find_one({"_id":obj_id,"user_id":user["id"]})
-    if not item:
-        raise HTTPException(status_code=404, detail="item not found")
-    
-    return {
-        "id":str(item["_id"]),
-        "title":item["title"],
-        "url":item["url"],
-        "vibe":item["vibe"],
-        "note": item.get("note"),
-        "board_id":item["board_id"],
-        "created_at":item["created_at"],
-        "updated_at":item["updated_at"]
-
-    }
+    return get_item_service(id,db,user)
 
 #update an item
 @router.put("/items/{id}")
 def update_item(id:str,item:Item,db=Depends(getdb),user=Depends(verify_token)):
-
-    try:
-        obj_id=ObjectId(id)
-
-    except InvalidId:
-        raise HTTPException(status_code=400,detail="invalid id")
-    
-    #validate board id
-    try:
-        board_obj_id=ObjectId(item.board_id)
-    except InvalidId:
-        raise HTTPException(status_code=400,detail="invalid board id")
-    
-    #check if board exists
-    board_data=db.boards.find_one({"_id":board_obj_id})
-
-    if not board_data:
-        raise HTTPException(status_code=404,detail="board not found")
-    
-    data_item=item.model_dump()
-    data_item["updated_at"]=datetime.now(timezone.utc)
-
-    result=db.items.update_one({'_id': obj_id,'user_id':user['id']},{"$set":data_item})
-
-    if result.matched_count==0:
-        raise HTTPException(status_code=404,detail="item not found")
-    
-    return {"message":"item updated successfully"}
+    return update_item_service(id,item,db,user)
 
 #delete item 
 @router.delete("/items/{id}")
 def delete_item(id:str,db=Depends(getdb),user=Depends(verify_token)):
-    try:
-        obj_id=ObjectId(id)
-    except InvalidId:
-        raise HTTPException(status_code=400,detail="invalid id")
-    
-    result=db.items.delete_one({'_id':obj_id,'user_id':user["id"]})
-
-    if result.deleted_count==0:
-        raise HTTPException(status_code=404,detail="item not found")
-    return{"message":"item deleted successfully"}
+    return delete_item_service(id,db,user)
 
 #create board
 @router.post("/boards",status_code=status.HTTP_201_CREATED)
 def create_board(board:Board,db=Depends(getdb),user=Depends(verify_token)):
-
-    data_board=board.model_dump()
-
-    data_board["user_id"]=user["id"]
-
-    data_board["created_at"]=datetime.now(timezone.utc)
-    data_board["updated_at"]=datetime.now(timezone.utc)
-
-    result = db.boards.insert_one(data_board)
-
-    return{
-        "message":"board created!",
-        "board_data": {
-            "id": str(result.inserted_id),
-            "name": data_board["name"],
-            "description": data_board.get("description"),
-            "created_at": data_board["created_at"],
-            "updated_at": data_board["updated_at"]
-        }
-    }
+    return create_board_service(board,db,user)
 
 #get all boards
 @router.get("/boards",response_model=list[BoardResponse])
 def get_boards(search:str=None,limit:int=3,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
-
-    query={}
-
-    if search:
-        query["name"]={'$regex':search,'$options':'i'}
-
-    boards_cursor= db.boards.find({**query,'user_id':user["id"]}).sort('_id',-1).limit(limit).skip(skip)
-    boards=[]
-
-    for board in boards_cursor:
-        boards.append({
-            "id":str(board["_id"]),
-            "name":board["name"],
-            "description":board.get("description"),
-            "created_at":board["created_at"],
-            "updated_at":board["updated_at"]
-        })
-
-    return boards
+    return get_boards_service(search,limit,skip,db,user)
     
 #see a single board
 @router.get("/boards/{id}",response_model=BoardResponse)
 def get_board(id:str,db=Depends(getdb),user=Depends(verify_token)):
-
-    try:
-        board_id=ObjectId(id)
-    except InvalidId:
-        raise HTTPException(status_code=400,detail="invalid id")
-    
-    board_data=db.boards.find_one({"_id":board_id,'user_id':user["id"]})
-    
-    if not board_data:
-        raise HTTPException(status_code=404,detail="board not found")
-    
-    return{
-        "id":str(board_data["_id"]),
-        "name":board_data["name"],
-        "description":board_data.get('description'),
-        "created_at":board_data["created_at"],
-        "updated_at":board_data["updated_at"]
-    }
+    return get_board_service(id,db,user)
 
 #update board
 @router.put("/boards/{id}")
 def update_board(id:str,board:Board,db=Depends(getdb),user=Depends(verify_token)):
-
-    try:
-        board_id=ObjectId(id)
-    except InvalidId:
-        raise HTTPException(status_code=400,detail="invalid id")
-    
-    board_data=board.model_dump()
-    board_data["updated_at"]=datetime.now(timezone.utc)
-
-    
-    result=db.boards.update_one({"_id":board_id,'user_id':user["id"]},{'$set':board_data})
-
-    if result.matched_count==0:
-        raise HTTPException(status_code=404,detail="board not found")
-    
-    return {
-        "message": "board updated successfully"
-    }
+    return update_board_service(id,board,db,user)
 
 #delete a board
 @router.delete("/boards/{id}")
 def delete_board(id:str,db=Depends(getdb),user=Depends(verify_token)):
-
-    try:
-        board_id=ObjectId(id)
-    except InvalidId:
-        raise HTTPException(status_code=400,detail="invalid id") 
-    
-    board_data=db.boards.delete_one({"_id":board_id,'user_id':user["id"]})
-
-    if board_data.deleted_count==0:
-        raise HTTPException(status_code=404,detail="board not found")
-    
-    return{
-        "message":"board deleted successfully!"
-    }
+    return delete_board_service(id,db,user)
 
 @router.get("/boards/{board_id}/items",response_model=list[ItemResponse])
 def get_boarditems(board_id:str,db=Depends(getdb),user=Depends(verify_token)):
-
-    try:
-        board_obj_id=ObjectId(board_id)
-    
-    except InvalidId:
-        raise HTTPException(status_code=400, detail="invalid board id")
-    
-    board_data=db.boards.find_one({"_id":board_obj_id,'user_id':user["id"]})
-
-    if not board_data:
-        raise HTTPException(status_code=404,detail="board not found")
-    
-    item_cursor=db.items.find({"board_id":board_id,'user_id':user["id"]})
-    items=[]
-
-    for item in item_cursor:
-        items.append({
-            "id":str(item["_id"]),
-            "title":item["title"],
-            "url":item["url"],
-            "vibe":item["vibe"],
-            "note":item.get("note"),
-            "created_at":item["created_at"],
-            "updated_at":item["updated_at"],
-            "board_id":item["board_id"]
-        })
-    return items
+    return get_boarditems_service(board_id,db,user)
 
 #flashback response
 @router.get("/flashbacks",response_model=list[FlashbackResponse])
 def get_flashback(db=Depends(getdb),user=Depends(verify_token)):
+    return get_flashback_service(db,user)
 
-    flashback_cursor=db.flashbacks.find({'user_id':user["id"]}).sort("_id",-1)
-    flashbacks=[]
-    for fb in flashback_cursor:
-        flashbacks.append({
-            "id":str(fb["_id"]),
-            "user_id":fb["user_id"],
-            "item_id":str(fb["item_id"]),
-            "title":fb["title"],
-            "vibe":fb["vibe"],
-            "message":fb["message"],
-            "created_at":fb["created_at"]
-        })
+#see all users
+@router.get("/admin/users",response_model=list[UserResponse])
+def get_users(db=Depends(getdb), user=Depends(admin_required)):
+    return get_users_service(db,user)
+
+#see single user
+@router.get("/admin/user/{id}",response_model=list[UserResponse])
+def get_user(id:str,db=Depends(getdb),user=Depends(admin_required)):
+    return get_user_service(id,db,user)
+
+#delete a user
+@router.delete("/admin/user/{id}")
+def delete_user(id:str,db=Depends(getdb),user=Depends(admin_required)):
+    return delete_user_service(id,db,user)
+
+#make admin
+@router.put("/admin/user/{id}/make-admin")
+def make_admin(id:str,db=Depends(getdb),user=Depends(admin_required)):
+    return make_admin_service(id,db,user)
+
+#make user
+@router.put("/admin/user/{id}/make-user")
+def make_user(id:str,db=Depends(getdb),user=Depends(admin_required)):
+    return make_user_service(id,db,user)
+
+#see all boards
+@router.get("/admin/boards",response_model=list[BoardResponse])
+def get_all_boards(db=Depends(getdb),user=Depends(admin_required)):
+    return get_all_boards_service(db,user)
+
+#delete any board
+@router.delete("/admin/boards/{id}")
+def delete_any_board(id:str,db=Depends(getdb),user=Depends(admin_required)):
+    return delete_any_board_service(id,db,user)

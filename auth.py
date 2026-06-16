@@ -32,7 +32,8 @@ def signup(user:User,db=Depends(getdb)):
     
     user_data={
         "email":user.email,
-        "password":hash_password(user.password)
+        "password":hash_password(user.password),
+        "role": "user"
     }
      
     db.users.insert_one(user_data)
@@ -51,7 +52,7 @@ def login(user:User, db=Depends(getdb)):
     if not verify_password(user.password,existing["password"]):
         raise HTTPException(status_code=400,detail="Invalid credentials")
     
-    token=create_token({ "id":str(existing["_id"]), "email":existing["email"]})
+    token=create_token({ "id":str(existing["_id"]), "email":existing["email"],"role":existing["role"]})
     
     return{"token":token, "type":"bearer"}
 
@@ -78,3 +79,9 @@ def verify_token(credentials:HTTPAuthorizationCredentials=Depends(security)):
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
     
+def admin_required(user=Depends(verify_token)):
+
+    if user["role"]!="admin":
+        raise HTTPException(status_code=403,detail="admin access required")
+    
+    return user
