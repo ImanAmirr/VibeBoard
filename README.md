@@ -54,6 +54,11 @@ This role is used to control access to protected routes.
 
 ---
 
+### Caching & File Handling
+
+- Implemented caching to improve API performance and reduce repeated database queries
+- Added file upload and file management support (store, update, and handle files within the API)
+
 ### Admin Features
 
 Admin-only endpoints are protected using:
