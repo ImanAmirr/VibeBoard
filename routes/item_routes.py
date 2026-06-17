@@ -1,11 +1,12 @@
-from fastapi import APIRouter,status,HTTPException,Depends
+from fastapi import APIRouter,status,HTTPException,Depends,UploadFile,File
 from bson import ObjectId
 from database import items_collection,boards_collection,flashback_collection,users_collection,getdb
 from models import Item,ItemResponse,Board,BoardResponse,FlashbackResponse,User,UserResponse
 from bson.errors import InvalidId
 from datetime import datetime, timezone
+from storage import save_file
 from auth import verify_token,admin_required
-from services import (
+from services.item_service import (
     create_item as create_item_service,
     get_items as get_items_service,
     get_item as get_item_service,
@@ -24,7 +25,8 @@ from services import (
     make_admin as make_admin_service,
     make_user as make_user_service,
     get_all_boards as get_all_boards_service,
-    delete_any_board as delete_any_board_service
+    delete_any_board as delete_any_board_service,
+    upload_file as upload_file_service
     )
 
 router = APIRouter()
@@ -94,7 +96,7 @@ def get_users(db=Depends(getdb), user=Depends(admin_required)):
     return get_users_service(db,user)
 
 #see single user
-@router.get("/admin/user/{id}",response_model=list[UserResponse])
+@router.get("/admin/user/{id}",response_model=UserResponse)
 def get_user(id:str,db=Depends(getdb),user=Depends(admin_required)):
     return get_user_service(id,db,user)
 
@@ -122,3 +124,8 @@ def get_all_boards(db=Depends(getdb),user=Depends(admin_required)):
 @router.delete("/admin/boards/{id}")
 def delete_any_board(id:str,db=Depends(getdb),user=Depends(admin_required)):
     return delete_any_board_service(id,db,user)
+
+#upload file 
+@router.post("/upload")
+def upload_file(file:UploadFile=File(...)):
+    return upload_file_service(file)
