@@ -129,3 +129,4 @@ def delete_any_board(id:str,db=Depends(getdb),user=Depends(admin_required)):
 @router.post("/upload")
 def upload_file(file:UploadFile=File(...)):
     return upload_file_service(file)
+
