@@ -125,6 +125,18 @@ MongoDB integration using PyMongo with collections:
 
 ---
 
+## Testing
+
+This project uses **pytest** along with FastAPI’s `TestClient` for API testing.
+
+---
+
+### Install dependencies
+
+```bash
+pip install pytest
+pip install httpx
+
 ## Running the Project
 
 ```bash
