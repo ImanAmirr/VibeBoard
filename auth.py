@@ -36,10 +36,12 @@ def signup(user:User,db=Depends(getdb)):
         "role": "user"
     }
      
-    db.users.insert_one(user_data)
+    result=db.users.insert_one(user_data)
 
-    return{"message":user}
-
+    return {
+        "id": str(result.inserted_id),
+        "email": user.email
+    }
 
 @auth_router.post("/login")
 def login(user:User, db=Depends(getdb)):

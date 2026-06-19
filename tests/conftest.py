@@ -1,6 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
 from main import app 
+from database import getdb
+import uuid
 
 @pytest.fixture
 def client():
@@ -38,11 +40,51 @@ def token(client):
         "password": "test124"
     })
 
-    print(response.json())  # ADD THIS
-
-
     assert response.status_code == 200
 
     return response.json()["token"]
+
+@pytest.fixture
+def admin_token(client):
+    
+    email = f"admin_{uuid.uuid4()}@example.com"
+
+    client.post("/signup", json={
+        "email": email,
+        "password": "test123"
+    })
+
+    db = getdb()
+
+    db.users.update_one(
+        {"email": email},
+        {"$set": {"role": "admin"}}
+    )
+
+    login = client.post("/login", json={
+        "email": email,
+        "password": "test123"
+    })
+
+    return login.json()["token"]
+
+@pytest.fixture
+def user(client):
+    email = f"user_{uuid.uuid4()}@example.com"
+
+    response=client.post("/signup",json={
+            "email": email,
+            "password": "test123"
+    })
+
+    assert response.status_code == 200
+    data=response.json()
+
+    return{
+        "id":data['id'],
+        "email":data["email"]
+    }
+    
+
 
 
