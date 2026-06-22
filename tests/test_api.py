@@ -12,6 +12,17 @@ def test_upload_file(client):
 
     assert response.status_code == 200
 
+#create item
+def test_create_item(client,token,board):
+    response=client.post("/items",json={
+        "title":"test item",
+        "url": "https://example.com",
+        "vibe":"test",
+        "board_id":board['id']},
+        headers={"Authorization":f"Bearer {token}"})
+    
+    assert response.status_code==201
+
 #get items
 def test_get_items(client,item,token):
     response=client.get("/items",headers={"Authorization":f"Bearer {token}"})
@@ -32,6 +43,14 @@ def test_get_item(client,item,token):
     assert data['id']==item['id']
     assert data['title']==item['title']
 
+#create board
+def test_create_board(client,token):
+    response=client.post("/boards",json={
+        "name":" test board",
+        "description": "testing"},
+        headers={"Authorization":f"Bearer {token}"})
+    
+    assert response.status_code==201
 
 #get boards
 def test_get_boards(client,board,token):
@@ -182,6 +201,20 @@ def test_items_invalid_token(client):
     response=client.get("/items",headers={"Authorization":"Bearer wrongtoken"})
 
     assert response.status_code==401
+
+#admin routes
+def test_admin_access_denied(client,token):
+    response=client.get("/admin/users",headers={"Authorization":f"Bearer {token}"})
+
+    assert response.status_code==403
+
+def test_admin_access(client,admin_token):
+    response=client.get("/admin/users",headers={"Authorization":f"Bearer {admin_token}"})
+
+    assert response.status_code==200
+
+
+
 
 
 

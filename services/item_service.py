@@ -4,7 +4,8 @@ from datetime import datetime,timezone
 from bson.errors import InvalidId
 from storage import save_file
 from cache import set_cache,delete_cache,get_cache
-
+from task import process_item,process_board
+from redis_conn import q
 #ITEM ENDPOINTS
 
 def create_item(item,db,user):
@@ -27,6 +28,8 @@ def create_item(item,db,user):
 
     result=db.items.insert_one(data_item) 
     delete_cache(f"items:{user['id']}:all")
+    q.enqueue(process_item, str(result.inserted_id))
+
 
     return {
         "message":"item created",
@@ -44,8 +47,6 @@ def create_item(item,db,user):
 
 def get_items(vibe,search, limit,skip,db,user):
 
-    #only use the cache when there are no filters, so a search
-    #never returns cached results meant for a different search
     use_cache = not vibe and not search
     cache_key=f"items:{user['id']}:all"
 
@@ -174,6 +175,7 @@ def create_board(board,db,user):
     data_board["updated_at"]=datetime.now(timezone.utc)
 
     result = db.boards.insert_one(data_board)
+    q.enqueue(process_board, str(result.inserted_id))
 
     delete_cache(f"boards:{user['id']}:all")
 
