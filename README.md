@@ -1,174 +1,69 @@
 # Vibe Board API
 
-A FastAPI-based backend application for saving, organizing, and revisiting inspiration, links, ideas, and resources through customizable vibe boards.
-
----
+A FastAPI backend for saving, organizing, and revisiting inspiration, links, ideas, and resources through customizable vibe boards.
 
 ## Features
 
-### Authentication
+### Authentication & Authorization
 
-* User signup
-* User login
-* JWT-based authentication
-* Protected API routes
+* User signup and login
+* JWT authentication
+* Protected routes
+* Role-Based Access Control (RBAC)
+* Admin-only endpoints
 
----
+### Boards
 
-### Board Management
-
-* Create boards
-* View all boards
-* View a single board
-* Update boards
-* Delete boards
+* Create, update, delete, and view boards
 * Search boards by name
 * Pagination support
 
----
-
-### Item Management
+### Items
 
 * Save items to boards
-* View all items
-* View a single item
-* Update items
-* Delete items
-* Filter items by vibe
-* Search items by title
+* Create, update, delete, and view items
+* Filter by vibe
+* Search by title
 * Pagination support
-
----
 
 ### Flashbacks
 
-* Automatic flashback generation for saved content
-* View flashback history
-* Personalized flashbacks per user
+* Personalized flashback history
+* Automatically generated from saved content
 
----
+### Performance
 
-### Background Job Queue
-
-The application uses **Redis Queue (RQ)** to process long-running tasks asynchronously.
-
-#### Features
-
-* Background item processing
-* Background board processing
-* Faster API response times
-* Redis-backed task queue
-* Non-blocking request handling
-
-#### Workflow
-
-1. User creates a board or item
-2. Data is stored in MongoDB
-3. A job is pushed to Redis
-4. API returns immediately
-5. Worker processes the job in the background
-
-#### Tasks
-
-* `process_item()`
-* `process_board()`
-
-#### Benefits
-
-* Improved performance
-* Better scalability
-* Reduced API latency
-* Separation of request handling and heavy processing
-
----
-
-### Caching
-
-Redis caching is implemented to reduce database queries and improve API performance.
-
-#### Cached Resources
-
-* Individual items
-* Item listings
-* Individual boards
-* Board listings
-* Flashbacks
-
-#### Cache Strategy
-
-* Cache-aside pattern
-* Read from cache first
-* Fallback to MongoDB on cache miss
-* Automatic cache invalidation on create, update, and delete operations
-
-#### Benefits
-
-* Faster response times
-* Reduced database load
-* Improved scalability
-
----
+* Redis caching for frequently accessed data
+* Cache invalidation on updates
+* Background processing with Redis Queue (RQ)
 
 ### File Handling
 
 * File upload support
 * File storage management
-* File path generation and retrieval
 
 ---
 
-### Admin Role-Based Access Control (RBAC)
-
-This project implements role-based access control to separate normal users and administrators.
-
-#### Roles
-
-* `user` → default role assigned on signup
-* `admin` → access to admin-only endpoints
-
-#### JWT Token
-
-Each login returns a JWT token containing:
-
-* User ID
-* Email
-* Role
-
-The role is used to authorize access to protected resources.
-
----
-
-### Admin Features
-
-Admin-only endpoints are protected using:
-
-* `verify_token()` → validates JWT tokens
-* `admin_required()` → verifies admin role
-
-#### User Management (Admin Only)
-
-* GET `/admin/users` → Get all users
-* GET `/admin/users/{id}` → Get a single user
-* DELETE `/admin/users/{id}` → Delete a user
-* PUT `/admin/users/{id}/make-admin` → Promote a user to admin
-* PUT `/admin/users/{id}/make-user` → Demote an admin to user
-
-#### Board Management (Admin Only)
-
-* GET `/admin/boards` → View all boards
-* DELETE `/admin/boards/{id}` → Delete any board
-
----
-
-## Service Layer Architecture
-
-Business logic is separated into dedicated layers.
-
-### Structure
+## Architecture
 
 ```text
-project/
-│
+Client
+   │
+   ▼
+FastAPI Routes
+   │
+   ▼
+Service Layer
+   │
+   ├── MongoDB
+   ├── Redis Cache
+   └── Redis Queue (RQ)
+```
+
+### Project Structure
+
+```text
+.
 ├── main.py
 ├── routes.py
 ├── services.py
@@ -177,98 +72,36 @@ project/
 ├── cache.py
 ├── redis_conn.py
 ├── task.py
-├── storage.py
-└── models.py
+└── storage.py
 ```
 
-### Responsibilities
-
-* `routes.py` → API endpoints
-* `services.py` → business logic
-* `database.py` → MongoDB connection
-* `auth.py` → authentication and authorization
-* `cache.py` → Redis caching
-* `redis_conn.py` → Redis queue configuration
-* `task.py` → background jobs
-* `storage.py` → file handling
-
-### Benefits
-
-* Improved maintainability
-* Better code organization
-* Easier testing
-* Higher scalability
-* Clear separation of concerns
-
----
-
-## Security Features
-
-* Password hashing using bcrypt
-* JWT authentication
-* Role-based access control (RBAC)
-* Protected admin routes
-* User-specific data isolation
-* CORS middleware support
-
----
-
-## Database
-
-MongoDB integration using PyMongo.
-
-### Collections
-
-* Users
-* Boards
-* Items
-* Flashbacks
+| File          | Responsibility        |
+| ------------- | --------------------- |
+| routes.py     | API endpoints         |
+| services.py   | Business logic        |
+| auth.py       | Authentication & RBAC |
+| database.py   | MongoDB connection    |
+| cache.py      | Redis caching         |
+| redis_conn.py | Queue configuration   |
+| task.py       | Background jobs       |
+| storage.py    | File handling         |
 
 ---
 
 ## Tech Stack
 
-### Backend
-
 * FastAPI
-* Python
-* Pydantic
-
-### Database
-
-* MongoDB
-* PyMongo
-
-### Authentication & Security
-
-* JWT (`python-jose`)
-* Passlib (`bcrypt`)
-
-### Caching & Queues
-
+* MongoDB (PyMongo)
 * Redis
 * Redis Queue (RQ)
-
-### File Handling
-
-* Local file storage
-
-### Testing
-
+* Pydantic
+* JWT (python-jose)
+* Passlib (bcrypt)
 * Pytest
-* FastAPI TestClient
-* HTTPX
 
 ---
 
-## Installation
-
-### Clone the Repository
-
-```bash
-git clone <repository-url>
-cd vibe-board-api
-```
+## Setup
 
 ### Install Dependencies
 
@@ -276,11 +109,19 @@ cd vibe-board-api
 pip install -r requirements.txt
 ```
 
----
+### Start Redis
 
-## Running the Project
+```bash
+redis-server
+```
 
-Start the FastAPI application:
+### Run Worker
+
+```bash
+rq worker
+```
+
+### Run API
 
 ```bash
 uvicorn main:app --reload
@@ -288,86 +129,19 @@ uvicorn main:app --reload
 
 ---
 
-## Running Redis
+## Security
 
-Ensure Redis is running before starting the application.
-
-Example:
-
-```bash
-redis-server
-```
+* Password hashing with bcrypt
+* JWT authentication
+* Role-based access control
+* Protected admin routes
+* CORS support
 
 ---
 
-## Running the Worker
+## Database Collections
 
-Start an RQ worker to process background jobs:
-
-```bash
-rq worker
-```
-
----
-
-## Testing
-
-Install testing dependencies:
-
-```bash
-pip install pytest httpx
-```
-
-Run tests:
-
-```bash
-pytest
-```
-
----
-
-## API Capabilities Summary
-
-### Authentication
-
-* Signup
-* Login
-* JWT Authentication
-
-### Boards
-
-* Create
-* Read
-* Update
-* Delete
-* Search
-* Pagination
-
-### Items
-
-* Create
-* Read
-* Update
-* Delete
-* Search
-* Filter by vibe
-* Pagination
-
-### Flashbacks
-
-* View flashbacks
-* Cached retrieval
-
-### Admin
-
-* User management
-* Role management
-* Global board management
-
-### Infrastructure
-
-* Redis caching
-* Redis Queue background jobs
-* File uploads
-* Service layer architecture
-* MongoDB persistence
+* Users
+* Boards
+* Items
+* Flashbacks
