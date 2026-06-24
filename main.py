@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from rq import Queue
 from redis_conn import redis_conn
 from task import process_flashback_item
+import os
+import uvicorn
 
 app = FastAPI()
 
@@ -55,3 +57,10 @@ async def flashback_job():
 @app.on_event("startup")
 async def start_background_task():
     asyncio.create_task(flashback_job())
+
+if __name__ == "__main__":
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 8000))
+    )
