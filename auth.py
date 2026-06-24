@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from jose import jwt,JWTError
 from datetime import datetime,timezone,timedelta
 from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
-from config import SECRET_KEY,ALGORITHM,token_time
+from config import SECRET_KEY,ALGORITHM,TOKEN_TIME
 
 
 auth_router=APIRouter()
@@ -63,7 +63,7 @@ def login(user:User, db=Depends(getdb)):
 def create_token(data:dict):
     to_encode=data.copy()
 
-    exp=datetime.now(timezone.utc)+timedelta(minutes=token_time)
+    exp=datetime.now(timezone.utc)+timedelta(minutes=TOKEN_TIME)
 
     to_encode["exp"]=exp
 

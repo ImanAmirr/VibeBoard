@@ -1,10 +1,10 @@
 from pymongo import MongoClient
-from config import database_name,Mongo_Url
+from config import DATABASE_NAME, MONGO_URI
 
-client = MongoClient(Mongo_Url)
+client = MongoClient(MONGO_URI)
 
 #database
-db=client[database_name]
+db=client[DATABASE_NAME]
 
 #collections
 items_collection=db.items

@@ -3,9 +3,10 @@ import os
 
 load_dotenv()
 
-SECRET_KEY=os.getenv("SECRET_KEY")
-ALGORITHM=os.getenv("ALGORITHM")
-token_time=int(os.getenv("token_time",60))
-Mongo_Url=os.getenv("Mongo_Url")
-database_name=os.getenv("database_name")
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 
+TOKEN_TIME = int(os.getenv("TOKEN_TIME", 60))
+
+MONGO_URI = os.getenv("MONGO_URI")
+DATABASE_NAME = os.getenv("DATABASE_NAME")
