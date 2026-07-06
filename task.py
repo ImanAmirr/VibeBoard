@@ -12,7 +12,7 @@ def process_flashback_item(item_id:str,db):
 
     if not item:
         return
-
+    
     exists = db.flashbacks.find_one({"item_id": item_id})
 
     if exists:
