@@ -118,43 +118,62 @@
     text-decoration: underline;
   }
   .back-home {
-  position: absolute;
-  top: 28px;
-  left: 32px;
-
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-
-  color: var(--ink);
-  text-decoration: none;
-  opacity: 0.7;
-
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.back-home:hover {
-  opacity: 1;
-  transform: translateX(-4px);
-}
-
-.back-home {
-    align-self: flex-start;
-    margin-bottom: 22px;
-
+    position: absolute;
+    top: 28px;
+    left: 32px;
+    z-index: 2;
+  
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  
+    padding: 8px 16px;
+    background: var(--paper);
+    border-radius: 2px;
+  
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 0.05em;
-
-    color: var(--paper);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  
+    color: var(--ink);
     text-decoration: none;
-    opacity: 0.8;
-
-    transition: opacity .2s ease, transform .2s ease;
-}
-
-.back-home:hover {
-    opacity: 1;
-    transform: translateX(-4px);
-}
+  
+    transform: rotate(-2deg);
+    box-shadow:
+      0 1px 1px rgba(10,14,12,0.08),
+      0 4px 10px rgba(10,14,12,0.22);
+  
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  
+  /* little tape strip pinning it down, echoing .auth-card::before */
+  .back-home::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    width: 34px;
+    height: 14px;
+    background: rgba(255,107,87,0.85);
+    transform: translateX(-50%) rotate(3deg);
+    border-radius: 1px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  
+  .back-home .arrow {
+    display: inline-block;
+    transition: transform .2s ease;
+  }
+  
+  .back-home:hover {
+    transform: rotate(0deg) translateY(-2px);
+    box-shadow:
+      0 2px 2px rgba(10,14,12,0.1),
+      0 8px 16px rgba(10,14,12,0.28);
+  }
+  
+  .back-home:hover .arrow {
+    transform: translateX(-3px);
+  }

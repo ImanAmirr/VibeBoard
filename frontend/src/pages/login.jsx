@@ -1,7 +1,40 @@
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
+import { useState } from "react";
 import "./Auth.css";
 
 export default function Login() {
+
+    const[email,setEmail]=useState("");
+    const[password,setPassword]=useState("");
+
+    const navigate=useNavigate()
+
+    const handleLogin = async() => {
+        const response=await fetch("http://localhost:8000/login",{
+            method:"POST",
+            headers:{
+                "Content-type":"application/json"
+            },
+            body:JSON.stringify({
+                email,
+                password,
+            }),
+        });
+
+        const data=await response.json();
+
+        if (response.ok){
+            localStorage.setItem("token",data.token);
+            navigate("/boards");
+        }
+        else
+        {
+            alert(data.detail);
+        }
+
+
+    }
+
     return (
         <div className="auth-page">
 
@@ -18,15 +51,20 @@ export default function Login() {
                     className="auth-input"
                     type="email"
                     placeholder="Email"
+                    value={email}
+                    onChange={(e)=>setEmail(e.target.value)}
                 />
 
                 <input
                     className="auth-input"
                     type="password"
                     placeholder="Password"
+                    value={password}
+                    onChange={(e)=>setPassword(e.target.value)}
                 />
 
-                <button className="auth-button">
+                <button className="auth-button"
+                onClick={handleLogin}>
                     Login
                 </button>
 

@@ -8,7 +8,7 @@ export default function Home()
 {
   return (
     <div>
-      <Navbar />
+      {/* <Navbar /> */}
       <Hero />
       <Features />
       <Footer />

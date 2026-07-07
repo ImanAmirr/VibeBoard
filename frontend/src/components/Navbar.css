@@ -41,24 +41,24 @@ button:focus-visible{ outline:2px solid var(--tape-mustard); outline-offset:2px;
 }
 
 .logo-icon {
-  font-size: 18px;
+  font-size: 25px;
   color: var(--tape-coral);
   transform: rotate(-8deg);
 }
 
-.navbar h2 {
+.navbar h1 {
   margin: 0;
   font-family:'Fraunces', serif;
   font-style: italic;
-  font-weight:600;
-  font-size:21px;
+  font-weight:700;
+  font-size:35px;
   color: var(--paper);
 }
 
-.buttons { display:flex; gap:10px; }
+.buttons { display:flex; gap:12px; }
 
 .navbar button {
-  padding: 8px 18px;
+  padding: 11px 18px;
   border-radius: 6px;
   font-family:'Space Grotesk', sans-serif;
   font-weight:500;

@@ -1,4 +1,5 @@
 import "./Hero.css";
+import { Link } from "react-router-dom";
 
 export default function Hero()
 { return(
@@ -11,8 +12,9 @@ export default function Hero()
         <p>
         VibeBoard is a visual space where inspiration turns into organized collections — fast, simple, and beautiful.
         </p>
-
+        <Link to ="./signup">
         <button>Get Started</button>
+        </Link>
 
     </section>
     );

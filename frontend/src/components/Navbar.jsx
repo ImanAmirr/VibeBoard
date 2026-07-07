@@ -8,7 +8,7 @@ export default function Navbar()
     <nav className="navbar">
         <div className="logo">
         <FaThumbtack className="logo-icon" />
-        <h2>VibeBoard</h2>   
+        <h1>VibeBoard</h1>   
         </div>
 
         <div className="buttons">
