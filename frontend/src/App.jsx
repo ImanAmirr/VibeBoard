@@ -7,6 +7,11 @@ import Home from "./pages/home";
 import Login from "./pages/login";
 import SignUp from "./pages/signup";
 import Boards from "./pages/boards";
+import Board from "./pages/board";
+import CreateItem from "./pages/createItem";
+import EditItem from "./pages/editItem";
+import createBoard from "./pages/createBoard";
+import CreateBoard from "./pages/createBoard";
 
 function PublicLayout() {
   return (
@@ -38,6 +43,10 @@ export default function App() {
 
         <Route element={<AppLayout />}>
           <Route path="/boards" element={<Boards />} />
+          <Route path="/boards/:boardId/items" element={<Board />} />
+          <Route path="/boards/:boardId/items/new" element={<CreateItem />} />
+          <Route path="/boards/:boardId/items/:itemId/edit" element={<EditItem />} />
+          <Route path="/boards/new" element={<CreateBoard />} />
         </Route>
       </Routes>
     </BrowserRouter>

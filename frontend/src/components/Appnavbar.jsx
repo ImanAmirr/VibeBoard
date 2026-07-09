@@ -21,7 +21,9 @@ export default function AppNavbar() {
 
       <div className="buttons">
         <div className="user-avatar">U</div>
+        <Link to ="/">
         <button className="btn-ghost">Logout</button>
+        </Link>
       </div>
     </nav>
   );

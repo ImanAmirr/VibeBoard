@@ -31,17 +31,17 @@ from services.item_service import (
 
 router = APIRouter()
 
-#create an item(save to board)
+#create an item
 @router.post("/items",status_code=status.HTTP_201_CREATED)
 def create_item(item:Item,db=Depends(getdb),user=Depends(verify_token)):
     return create_item_service(item,db,user)
 
-#get all items(see board)
+#get all items
 @router.get("/items",response_model=list[ItemResponse])
 def get_items(vibe:str=None,search:str=None, limit:int=5,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
     return get_items_service(vibe,search,limit,skip,db,user)
 
-#get a single item(from board)
+#get a single item
 @router.get("/items/{id}",response_model=ItemResponse)
 def get_item(id:str,db=Depends(getdb),user=Depends(verify_token)):
     return get_item_service(id,db,user)
