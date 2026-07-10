@@ -10,8 +10,11 @@ import Boards from "./pages/boards";
 import Board from "./pages/board";
 import CreateItem from "./pages/createItem";
 import EditItem from "./pages/editItem";
-import createBoard from "./pages/createBoard";
 import CreateBoard from "./pages/createBoard";
+import EditBoard from "./pages/editBoard";
+import Profile from "./pages/profile";
+import Admin from "./pages/admin";
+
 
 function PublicLayout() {
   return (
@@ -47,6 +50,9 @@ export default function App() {
           <Route path="/boards/:boardId/items/new" element={<CreateItem />} />
           <Route path="/boards/:boardId/items/:itemId/edit" element={<EditItem />} />
           <Route path="/boards/new" element={<CreateBoard />} />
+          <Route path="/boards/:boardId/edit" element={<EditBoard />} />
+          <Route path="/me" element={<Profile />} />
+          <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>
     </BrowserRouter>

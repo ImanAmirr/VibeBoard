@@ -8,7 +8,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  /* max-width: 1600px; */
+  max-width: 1600px;
   margin: 0 auto 48px;
 }
 
@@ -136,6 +136,56 @@
   font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
   color: rgba(255,255,255,0.85);
+}
+
+.card-actions {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+}
+.edit-btn {
+  color: #fff;
+}
+.edit-btn,
+.delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: rgba(15, 16, 15, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: transform .18s ease, background .18s ease, color .18s ease;
+}
+
+.edit-btn:hover {
+  background: #fff;
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.delete-btn:hover {
+  background: #e35c4e;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.delete-btn::before {
+  display: none;
 }
 
 .add-card {

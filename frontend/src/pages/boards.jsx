@@ -35,6 +35,25 @@ export default function Boards() {
 
     }, []);
 
+    const handleDelete=async(boardId)=>{
+
+        const token=localStorage.getItem("token");
+        const response=await fetch(`http://localhost:8000/boards/${boardId}`,{
+            method:"DELETE",
+            headers:{
+                Authorization:`Bearer ${token}`,
+            },
+        });
+
+        if(response.ok){
+            setBoards(boards.filter(board=>board.id!==boardId));
+        }
+
+        else{
+            console.log("Delete Failed");
+        }
+    };
+
     return (
         <div className="boards-page">
             <div className="boards-header">
@@ -65,6 +84,19 @@ export default function Boards() {
                                 <span className="board-count">
                                     {board.description || "No description"}
                                 </span>
+
+                                <div className="card-actions">
+                                    <button className="edit-btn"
+                                    onClick={(e)=>{e.preventDefault();
+                                    navigate(`/boards/${board.id}/edit`)}}>
+                                        Edit
+                                    </button>
+                                    <button className="delete-btn"
+                                    onClick={(e)=>{e.preventDefault();
+                                    handleDelete(board.id)}}>
+                                        Delete
+                                    </button>
+                                </div>
                             </div>
                         </Link>
                     );

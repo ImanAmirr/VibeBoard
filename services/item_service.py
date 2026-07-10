@@ -462,3 +462,6 @@ def upload_file(file):
         "message":"File uploaded successfully",
         "file_path": path
     }
+
+def get_me(db,user):
+    return user

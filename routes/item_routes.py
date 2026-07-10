@@ -26,7 +26,8 @@ from services.item_service import (
     make_user as make_user_service,
     get_all_boards as get_all_boards_service,
     delete_any_board as delete_any_board_service,
-    upload_file as upload_file_service
+    upload_file as upload_file_service,
+    get_me as get_me_service
     )
 
 router = APIRouter()
@@ -38,7 +39,7 @@ def create_item(item:Item,db=Depends(getdb),user=Depends(verify_token)):
 
 #get all items
 @router.get("/items",response_model=list[ItemResponse])
-def get_items(vibe:str=None,search:str=None, limit:int=5,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
+def get_items(vibe:str=None,search:str=None, limit:int=20,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
     return get_items_service(vibe,search,limit,skip,db,user)
 
 #get a single item
@@ -63,7 +64,7 @@ def create_board(board:Board,db=Depends(getdb),user=Depends(verify_token)):
 
 #get all boards
 @router.get("/boards",response_model=list[BoardResponse])
-def get_boards(search:str=None,limit:int=3,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
+def get_boards(search:str=None,limit:int=30,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
     return get_boards_service(search,limit,skip,db,user)
     
 #see a single board
@@ -130,3 +131,7 @@ def delete_any_board(id:str,db=Depends(getdb),user=Depends(admin_required)):
 def upload_file(file:UploadFile=File(...)):
     return upload_file_service(file)
 
+#personal information
+@router.get("/me",response_model=UserResponse)
+def get_me(db=Depends(getdb),user=Depends(verify_token)):
+    return get_me_service(db,user)
