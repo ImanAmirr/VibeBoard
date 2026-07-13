@@ -60,6 +60,16 @@ export default function AppNavbar() {
 
         )}
 
+        <NavLink
+        to="/flashbacks"
+        className={({ isActive }) => (isActive ? "active-link" : "")}>
+           Flashbacks
+
+        </NavLink>
+
+
+       
+
 
       </div>
 

@@ -14,6 +14,7 @@ import CreateBoard from "./pages/createBoard";
 import EditBoard from "./pages/editBoard";
 import Profile from "./pages/profile";
 import Admin from "./pages/admin";
+import Flashback from "./pages/flashback";
 
 
 function PublicLayout() {
@@ -53,6 +54,7 @@ export default function App() {
           <Route path="/boards/:boardId/edit" element={<EditBoard />} />
           <Route path="/me" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/flashbacks" element={<Flashback />} />
         </Route>
       </Routes>
     </BrowserRouter>

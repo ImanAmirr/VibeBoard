@@ -329,58 +329,58 @@ def get_boarditems(board_id,db,user):
 
 def get_flashback(db,user):
 
-    cache_key=f"flashbacks:{user['id']}"
-    cache_data=get_cache(cache_key)
-    if cache_data:
-        return cache_data
+    flashback_cursor = db.flashbacks.find({
+        "user_id": user["id"]
+    }).sort("_id",-1)
 
-    flashback_cursor=db.flashbacks.find({'user_id':user["id"]}).sort("_id",-1)
     flashbacks=[]
+
     for fb in flashback_cursor:
         flashbacks.append({
-            "id":str(fb["_id"]),
-            "user_id":fb["user_id"],
-            "item_id":str(fb["item_id"]),
-            "title":fb["title"],
-            "vibe":fb["vibe"],
-            "message":fb["message"],
-            "created_at":fb["created_at"]
+            "id": str(fb["_id"]),
+            "user_id": fb["user_id"],
+            "item_id": fb["item_id"],
+            "title": fb["title"],
+            "vibe": fb["vibe"],
+            "message": fb["message"],
+            "created_at": fb["created_at"]
         })
 
-    set_cache(cache_key,flashbacks)
     return flashbacks
     
 
 #ADMIN ENDPOINTS
 
-def get_users(db,user):
+def get_users(db, user):
 
-    user_cursor=db.users.find({})
-
-    result=[]
+    user_cursor = db.users.find({})
+    result = []
 
     for u in user_cursor:
         result.append({
-            "id":str(u["_id"]),
-            "email":u["email"]
+            "id": str(u["_id"]),
+            "email": u["email"],
+            "role": u.get("role", "user")
         })
 
     return result
 
-def get_user(id,db,user):
+
+def get_user(id, db, user):
     try:
-        user_id=ObjectId(id)
+        user_id = ObjectId(id)
     except InvalidId:
         raise HTTPException(status_code=400, detail="Invalid ID")
-    
-    result=db.users.find_one({"_id":user_id})
+
+    result = db.users.find_one({"_id": user_id})
 
     if not result:
-        raise HTTPException(status_code=404,detail="user not found")
-    
-    return{
-        "id":str(result["_id"]),
-        "email":result["email"]
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "id": str(result["_id"]),
+        "email": result["email"],
+        "role": result.get("role", "user")
     }
 
 def delete_user(id,db,user):

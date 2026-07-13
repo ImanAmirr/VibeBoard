@@ -54,7 +54,7 @@ def login(user:User, db=Depends(getdb)):
     if not verify_password(user.password,existing["password"]):
         raise HTTPException(status_code=400,detail="Invalid credentials")
     
-    token=create_token({ "id":str(existing["_id"]), "email":existing["email"],"role":existing["role"]})
+    token=create_token({ "id":str(existing["_id"]), "email":existing["email"],"role":existing.get("role","user")})
     
     return{"token":token, "type":"bearer"}
 

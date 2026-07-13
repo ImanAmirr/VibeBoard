@@ -46,12 +46,18 @@ async def flashback_job():
             })
 
             for item in items:
+                print(f"\nFOUND ITEM: {item['title']} ({item['_id']})")
+
+                print("ABOUT TO QUEUE...")
                 q.enqueue(process_flashback_item, str(item["_id"]))
+                print("QUEUED SUCCESSFULLY")
 
         except Exception as e:
-            print("Flashback job error:", e)
+            import traceback
+            print("\nFLASHBACK JOB ERROR:")
+            traceback.print_exc()
 
-        await asyncio.sleep(3600)
+        await asyncio.sleep(30)
 
 
 @app.on_event("startup")
