@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv(".env")
 from fastapi import FastAPI
 from backend.routes.item_routes import router  
 from backend.auth import auth_router
@@ -10,9 +12,7 @@ from backend.redis_conn import redis_conn
 from backend.task import process_flashback_item
 import os
 import uvicorn
-from dotenv import load_dotenv
 
-load_dotenv()
 
 app = FastAPI()
 
