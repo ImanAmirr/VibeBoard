@@ -1,15 +1,18 @@
 from fastapi import FastAPI
-from routes.item_routes import router  
-from auth import auth_router
+from backend.routes.item_routes import router  
+from backend.auth import auth_router
 import asyncio
 from datetime import datetime, timezone, timedelta
-from database import db
+from backend.database import db
 from fastapi.middleware.cors import CORSMiddleware
 from rq import Queue
-from redis_conn import redis_conn
-from task import process_flashback_item
+from backend.redis_conn import redis_conn
+from backend.task import process_flashback_item
 import os
 import uvicorn
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -46,12 +49,18 @@ async def flashback_job():
             })
 
             for item in items:
+                print(f"\nFOUND ITEM: {item['title']} ({item['_id']})")
+
+                print("ABOUT TO QUEUE...")
                 q.enqueue(process_flashback_item, str(item["_id"]))
+                print("QUEUED SUCCESSFULLY")
 
         except Exception as e:
-            print("Flashback job error:", e)
+            import traceback
+            print("\nFLASHBACK JOB ERROR:")
+            traceback.print_exc()
 
-        await asyncio.sleep(3600)
+        await asyncio.sleep(30)
 
 
 @app.on_event("startup")

@@ -15,7 +15,7 @@ import EditBoard from "./pages/editBoard";
 import Profile from "./pages/profile";
 import Admin from "./pages/admin";
 import Flashback from "./pages/flashback";
-
+import Explore from "./pages/explore";
 
 function PublicLayout() {
   return (
@@ -55,6 +55,7 @@ export default function App() {
           <Route path="/me" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/flashbacks" element={<Flashback />} />
+          <Route path="/explore" element={<Explore />} />
         </Route>
       </Routes>
     </BrowserRouter>

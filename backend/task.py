@@ -1,16 +1,22 @@
 from datetime import datetime, timezone
 from bson import ObjectId
+from backend.database import db
 
-def process_item(item_id:str):
+
+def process_item(item_id: str):
     print(f"Processing item: {item_id}")
 
-def process_board(board_id:str):
+
+def process_board(board_id: str):
     print(f"Processing board: {board_id}")
 
-def process_flashback_item(item_id:str,db):
+
+def process_flashback_item(item_id: str):
+
     item = db.items.find_one({"_id": ObjectId(item_id)})
 
     if not item:
+        print(f"Item {item_id} not found.")
         return
 
     exists = db.flashbacks.find_one({"item_id": item_id})
@@ -26,3 +32,5 @@ def process_flashback_item(item_id:str,db):
         "message": "You worked on this recently",
         "created_at": datetime.now(timezone.utc)
     })
+
+    print(f"Flashback created for item {item_id}.")

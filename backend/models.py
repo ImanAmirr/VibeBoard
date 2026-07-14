@@ -21,6 +21,7 @@ class ItemResponse(BaseModel):
     note:Optional[str]=None
     created_at:datetime
     updated_at:datetime
+    is_image:bool
 
 #request model    
 class Board(BaseModel):
@@ -55,3 +56,4 @@ class User(BaseModel):
 class UserResponse(BaseModel):
     id:str
     email:str
+    role:str

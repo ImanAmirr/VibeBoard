@@ -1,12 +1,12 @@
 from fastapi import APIRouter,status,HTTPException,Depends,UploadFile,File
 from bson import ObjectId
-from database import items_collection,boards_collection,flashback_collection,users_collection,getdb
-from models import Item,ItemResponse,Board,BoardResponse,FlashbackResponse,User,UserResponse
+from backend.database import items_collection,boards_collection,flashback_collection,users_collection,getdb
+from backend.models import Item,ItemResponse,Board,BoardResponse,FlashbackResponse,User,UserResponse
 from bson.errors import InvalidId
 from datetime import datetime, timezone
-from storage import save_file
-from auth import verify_token,admin_required
-from services.item_service import (
+from backend.storage import save_file
+from backend.auth import verify_token,admin_required
+from backend.services.item_service import (
     create_item as create_item_service,
     get_items as get_items_service,
     get_item as get_item_service,
@@ -26,22 +26,24 @@ from services.item_service import (
     make_user as make_user_service,
     get_all_boards as get_all_boards_service,
     delete_any_board as delete_any_board_service,
-    upload_file as upload_file_service
+    upload_file as upload_file_service,
+    get_me as get_me_service,
+    get_explore_items as get_explore_items_service
     )
 
 router = APIRouter()
 
-#create an item(save to board)
+#create an item
 @router.post("/items",status_code=status.HTTP_201_CREATED)
 def create_item(item:Item,db=Depends(getdb),user=Depends(verify_token)):
     return create_item_service(item,db,user)
 
-#get all items(see board)
+#get all items
 @router.get("/items",response_model=list[ItemResponse])
-def get_items(vibe:str=None,search:str=None, limit:int=5,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
+def get_items(vibe:str=None,search:str=None, limit:int=20,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
     return get_items_service(vibe,search,limit,skip,db,user)
 
-#get a single item(from board)
+#get a single item
 @router.get("/items/{id}",response_model=ItemResponse)
 def get_item(id:str,db=Depends(getdb),user=Depends(verify_token)):
     return get_item_service(id,db,user)
@@ -63,7 +65,7 @@ def create_board(board:Board,db=Depends(getdb),user=Depends(verify_token)):
 
 #get all boards
 @router.get("/boards",response_model=list[BoardResponse])
-def get_boards(search:str=None,limit:int=3,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
+def get_boards(search:str=None,limit:int=30,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
     return get_boards_service(search,limit,skip,db,user)
     
 #see a single board
@@ -130,3 +132,21 @@ def delete_any_board(id:str,db=Depends(getdb),user=Depends(admin_required)):
 def upload_file(file:UploadFile=File(...)):
     return upload_file_service(file)
 
+#personal information
+@router.get("/me",response_model=UserResponse)
+def get_me(db=Depends(getdb),user=Depends(verify_token)):
+    return get_me_service(db,user)
+
+@router.get("/explore")
+def explore_items(
+    limit: int = 20,
+    skip: int = 0,
+    db=Depends(getdb),
+    user=Depends(verify_token)
+):
+    return get_explore_items_service(
+        limit,
+        skip,
+        db,
+        user
+    )

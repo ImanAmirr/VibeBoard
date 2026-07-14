@@ -64,8 +64,15 @@ export default function AppNavbar() {
         to="/flashbacks"
         className={({ isActive }) => (isActive ? "active-link" : "")}>
            Flashbacks
-
         </NavLink>
+
+        <NavLink
+        to="/explore"
+        className={({ isActive }) => (isActive ? "active-link" : "")}>
+          Explore
+          </NavLink>
+
+        
 
 
        

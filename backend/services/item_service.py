@@ -2,10 +2,12 @@ from bson import ObjectId
 from fastapi import HTTPException
 from datetime import datetime,timezone
 from bson.errors import InvalidId
-from storage import save_file
-from cache import set_cache,delete_cache,get_cache
-from task import process_item,process_board
-from redis_conn import q
+from backend.storage import save_file
+from backend.cache import set_cache,delete_cache,get_cache
+from backend.task import process_item,process_board
+from backend.redis_conn import q
+from backend.utilis import is_image_url
+
 #ITEM ENDPOINTS
 
 def create_item(item,db,user):
@@ -32,18 +34,19 @@ def create_item(item,db,user):
 
 
     return {
-        "message":"item created",
-        "item": {
-            "id": str(result.inserted_id),
-            "title": data_item["title"],
-            "url": data_item["url"],
-            "vibe": data_item["vibe"],
-            "note": data_item.get("note"),
-            "board_id": data_item["board_id"],
-            "created_at": data_item["created_at"],
-            "updated_at": data_item["updated_at"]
-        }
+    "message": "item created",
+    "item": {
+        "id": str(result.inserted_id),
+        "title": data_item["title"],
+        "url": data_item["url"],
+        "vibe": data_item["vibe"],
+        "note": data_item.get("note"),
+        "board_id": data_item["board_id"],
+        "created_at": data_item["created_at"],
+        "updated_at": data_item["updated_at"],
+        "is_image": is_image_url(data_item["url"])
     }
+}
 
 def get_items(vibe,search, limit,skip,db,user):
 
@@ -67,15 +70,16 @@ def get_items(vibe,search, limit,skip,db,user):
     items=[]
     for item in items_cursor:
         items.append({
-            "id": str(item["_id"]),
-            "title":item["title"],
-            "url":item["url"],
-            "vibe":item["vibe"],
-            "note":item.get("note"),
-            "board_id":item["board_id"],
-            "created_at":item["created_at"],
-            "updated_at":item["updated_at"]
-        })
+    "id": str(item["_id"]),
+    "title": item["title"],
+    "url": item["url"],
+    "vibe": item["vibe"],
+    "note": item.get("note"),
+    "board_id": item["board_id"],
+    "created_at": item["created_at"],
+    "updated_at": item["updated_at"],
+    "is_image": is_image_url(item["url"])
+})
 
     if use_cache:
         set_cache(cache_key,items)
@@ -99,16 +103,17 @@ def get_item(id,db,user):
     if not item:
         raise HTTPException(status_code=404, detail="item not found")
     
-    result= {
-        "id":str(item["_id"]),
-        "title":item["title"],
-        "url":item["url"],
-        "vibe":item["vibe"],
-        "note": item.get("note"),
-        "board_id":item["board_id"],
-        "created_at":item["created_at"],
-        "updated_at":item["updated_at"]
-    }
+    result = {
+    "id": str(item["_id"]),
+    "title": item["title"],
+    "url": item["url"],
+    "vibe": item["vibe"],
+    "note": item.get("note"),
+    "board_id": item["board_id"],
+    "created_at": item["created_at"],
+    "updated_at": item["updated_at"],
+    "is_image": is_image_url(item["url"])
+}
 
     set_cache(cache_key,result)
 
@@ -314,14 +319,15 @@ def get_boarditems(board_id,db,user):
 
     for item in item_cursor:
         items.append({
-            "id":str(item["_id"]),
-            "title":item["title"],
-            "url":item["url"],
-            "vibe":item["vibe"],
-            "note":item.get("note"),
-            "created_at":item["created_at"],
-            "updated_at":item["updated_at"],
-            "board_id":item["board_id"]
+            "id": str(item["_id"]),
+            "title": item["title"],
+            "url": item["url"],
+            "vibe": item["vibe"],
+            "note": item.get("note"),
+            "created_at": item["created_at"],
+            "updated_at": item["updated_at"],
+            "board_id": item["board_id"],
+            "is_image": is_image_url(item["url"])
         })
     return items
 
@@ -329,58 +335,58 @@ def get_boarditems(board_id,db,user):
 
 def get_flashback(db,user):
 
-    cache_key=f"flashbacks:{user['id']}"
-    cache_data=get_cache(cache_key)
-    if cache_data:
-        return cache_data
+    flashback_cursor = db.flashbacks.find({
+        "user_id": user["id"]
+    }).sort("_id",-1)
 
-    flashback_cursor=db.flashbacks.find({'user_id':user["id"]}).sort("_id",-1)
     flashbacks=[]
+
     for fb in flashback_cursor:
         flashbacks.append({
-            "id":str(fb["_id"]),
-            "user_id":fb["user_id"],
-            "item_id":str(fb["item_id"]),
-            "title":fb["title"],
-            "vibe":fb["vibe"],
-            "message":fb["message"],
-            "created_at":fb["created_at"]
+            "id": str(fb["_id"]),
+            "user_id": fb["user_id"],
+            "item_id": fb["item_id"],
+            "title": fb["title"],
+            "vibe": fb["vibe"],
+            "message": fb["message"],
+            "created_at": fb["created_at"]
         })
 
-    set_cache(cache_key,flashbacks)
     return flashbacks
     
 
 #ADMIN ENDPOINTS
 
-def get_users(db,user):
+def get_users(db, user):
 
-    user_cursor=db.users.find({})
-
-    result=[]
+    user_cursor = db.users.find({})
+    result = []
 
     for u in user_cursor:
         result.append({
-            "id":str(u["_id"]),
-            "email":u["email"]
+            "id": str(u["_id"]),
+            "email": u["email"],
+            "role": u.get("role", "user")
         })
 
     return result
 
-def get_user(id,db,user):
+
+def get_user(id, db, user):
     try:
-        user_id=ObjectId(id)
+        user_id = ObjectId(id)
     except InvalidId:
         raise HTTPException(status_code=400, detail="Invalid ID")
-    
-    result=db.users.find_one({"_id":user_id})
+
+    result = db.users.find_one({"_id": user_id})
 
     if not result:
-        raise HTTPException(status_code=404,detail="user not found")
-    
-    return{
-        "id":str(result["_id"]),
-        "email":result["email"]
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "id": str(result["_id"]),
+        "email": result["email"],
+        "role": result.get("role", "user")
     }
 
 def delete_user(id,db,user):
@@ -462,3 +468,27 @@ def upload_file(file):
         "message":"File uploaded successfully",
         "file_path": path
     }
+
+def get_me(db,user):
+    return user
+
+
+def get_explore_items(limit, skip, db, user):
+
+    items_cursor = db.items.find({}).sort("_id", -1).skip(skip).limit(limit)
+
+    items = []
+
+    for item in items_cursor:
+        items.append({
+            "id": str(item["_id"]),
+            "title": item["title"],
+            "url": item["url"],
+            "vibe": item["vibe"],
+            "note": item.get("note"),
+            "created_at": item["created_at"],
+            "updated_at": item["updated_at"],
+            "is_image": is_image_url(item["url"])
+        })
+
+    return items

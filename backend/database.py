@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from config import DATABASE_NAME, MONGO_URI
+from backend.config import DATABASE_NAME, MONGO_URI
 
 client = MongoClient(MONGO_URI)
 
@@ -15,6 +15,10 @@ users_collection=db.users
 
 #index
 flashback_collection.create_index("item_id", unique=True)
+db.flashbacks.create_index(
+    "created_at",
+    expireAfterSeconds=86400
+)
 
 #depend functionality
 def getdb():

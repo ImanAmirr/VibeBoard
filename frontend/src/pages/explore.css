@@ -1,0 +1,251 @@
+.explore-page {
+    min-height: calc(100vh - 71px);
+    background: var(--board);
+    padding: 56px 40px 90px;
+    column-count: 4;
+    column-gap: 26px;
+    position: relative;
+  }
+  
+  .explore-page > p {
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--muted);
+    margin-top: 60px;
+  }
+  
+  .explore-card {
+    --rot: 0deg;
+    break-inside: avoid;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    background: linear-gradient(165deg, var(--paper) 0%, #f4e9d2 100%);
+    border-radius: 4px 16px 6px 14px;
+    box-shadow: 0 14px 30px var(--shadow);
+    transform: rotate(var(--rot));
+    cursor: pointer;
+    transition: transform .3s ease, box-shadow .3s ease;
+    animation: pinIn .5s cubic-bezier(.22,1,.36,1);
+  }
+  
+  .explore-card:nth-child(4n+1){ --rot: -1deg; }
+  .explore-card:nth-child(4n+2){ --rot: 0.8deg; }
+  .explore-card:nth-child(4n+3){ --rot: -0.8deg; }
+  .explore-card:nth-child(4n+4){ --rot: 1deg; }
+  
+  @keyframes pinIn {
+    from { opacity: 0; transform: translateY(20px) rotate(var(--rot)); }
+    to   { opacity: 1; transform: translateY(0) rotate(var(--rot)); }
+  }
+  
+  .explore-card:hover {
+    transform: translateY(-6px) rotate(0deg);
+    box-shadow: 0 22px 40px var(--shadow);
+  }
+  
+  .explore-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 4px 16px 0 0;
+    position: relative;
+    z-index: 1;
+    margin-top: 6px;
+  }
+  
+  .explore-card::before{
+    content:"";
+    position:absolute;
+    top:-10px; left:50%;
+    width:70px; height:22px;
+    border-radius:2px;
+    opacity:0.95;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    transform: translateX(-50%) rotate(-4deg);
+    z-index: 10;
+  }
+  
+  .explore-card:nth-child(4n+1)::before{ background: var(--tape-coral); }
+  .explore-card:nth-child(4n+2)::before{ background: var(--tape-mustard); }
+  .explore-card:nth-child(4n+3)::before{ background: var(--tape-sage); }
+  .explore-card:nth-child(4n+4)::before{ background: var(--tape-blue); }
+  
+  .explore-card h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--ink);
+    margin: 26px 16px 6px;
+  }
+  
+  .explore-card p {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #6b6552;
+    margin: 0 16px 8px;
+  }
+  
+  .explore-card p:first-of-type {
+    display: inline-block;
+    width: fit-content;
+    margin-left: 16px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: capitalize;
+    padding: 3px 9px;
+    border-radius: 4px;
+    background: rgba(35,32,25,0.08);
+    color: #6b6552;
+  }
+  
+  .explore-card a {
+    display: inline-block;
+    margin: 4px 16px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1.5px solid rgba(35,32,25,0.3);
+    transition: color .15s ease, border-color .15s ease;
+  }
+  
+  .explore-card a:hover {
+    color: var(--tape-coral);
+    border-bottom-color: var(--tape-coral);
+  }
+
+  .save-button {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 15;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    padding: 8px 16px;
+    margin: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: #fff;
+    background: var(--tape-coral);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(255,107,87,0.4);
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity .2s ease, transform .2s ease, background .18s ease;
+  }
+  
+  .explore-card:hover .save-button {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .save-button:hover {
+    background: #ff7d6a;
+    transform: translateY(-2px) !important;
+  }
+  
+  .save-button:active {
+    transform: translateY(0) scale(0.95) !important;
+  }
+  
+  @media (max-width: 800px) {
+    .save-button {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .board-picker-popup {
+    max-width: 300px;
+    padding: 28px 24px 20px;
+  }
+  
+  .board-picker-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink);
+    margin: 0 0 14px;
+  }
+  
+  .popup .board-button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 9px 14px;
+    margin-bottom: 6px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: none;
+    color: var(--ink);
+    background: rgba(35,32,25,0.05);
+    border: none;
+    border-left: 3px solid var(--tape-coral);
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: none;
+    transition: transform .15s ease, background .15s ease;
+  }
+  
+  .popup .board-button:nth-child(4n+2) { border-left-color: var(--tape-coral); }
+  .popup .board-button:nth-child(4n+3) { border-left-color: var(--tape-mustard); }
+  .popup .board-button:nth-child(4n+4) { border-left-color: var(--tape-sage); }
+  .popup .board-button:nth-child(4n+5) { border-left-color: var(--tape-blue); }
+  
+  .popup .board-button:hover {
+    background: rgba(35,32,25,0.09);
+    transform: translateX(4px);
+    color: var(--ink);
+  }
+  
+  .popup .board-button:active {
+    transform: translateX(2px) scale(0.99);
+  }
+  
+  .popup .cancel-button {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    margin-right: 0;
+    padding: 9px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #6b6552;
+    background: transparent;
+    border: 1px solid rgba(35,32,25,0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background .15s ease;
+  }
+  
+  .popup .cancel-button:hover {
+    background: rgba(35,32,25,0.05);
+  }
+  
+  @media (max-width: 1100px) {
+    .explore-page { column-count: 3; }
+  }
+  
+  @media (max-width: 800px) {
+    .explore-page { column-count: 2; }
+  }
+  
+  @media (max-width: 520px) {
+    .explore-page { column-count: 1; }
+  }

@@ -1,11 +1,11 @@
 from fastapi import APIRouter,Depends,HTTPException,status
-from models import User,UserResponse
-from database import users_collection,getdb
+from backend.models import User,UserResponse
+from backend.database import users_collection,getdb
 from passlib.context import CryptContext
 from jose import jwt,JWTError
 from datetime import datetime,timezone,timedelta
 from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
-from config import SECRET_KEY,ALGORITHM,TOKEN_TIME
+from backend.config import SECRET_KEY,ALGORITHM,TOKEN_TIME
 
 
 auth_router=APIRouter()
