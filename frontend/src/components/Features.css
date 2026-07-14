@@ -1,0 +1,68 @@
+.features {
+    padding: 0px 20px 55px;
+    text-align: center;
+  }
+  
+  .features h2 {
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:650;
+    font-size:40px;
+    color: var(--paper);
+    margin: 0 0 10px;
+  }
+  
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 34px 28px;
+    max-width: 760px;
+    margin: 50px auto 0;
+  }
+  
+  .card {
+    background: var(--paper);
+    padding: 50px 40px 44px;
+    border-radius: 4px 18px 6px 16px;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--ink);
+    position: relative;
+    box-shadow: 0 14px 30px var(--shadow);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  
+  .card::before{
+    content:"# ";
+    font-family:'IBM Plex Mono', monospace;
+    color: var(--tape-coral);
+  }
+  
+  .card::after{
+    content:"";
+    position:absolute;
+    top:-14px;
+    width:70px; height:24px;
+    border-radius:2px;
+    opacity:0.85;
+    box-shadow:0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  .card:nth-child(1){ transform: rotate(-2deg); }
+  .card:nth-child(2){ transform: rotate(1.5deg); }
+  .card:nth-child(3){ transform: rotate(1deg); }
+  .card:nth-child(4){ transform: rotate(-1.5deg); }
+  
+  .card:nth-child(1)::after{ left:20px; background:var(--tape-coral); transform:rotate(-4deg); }
+  .card:nth-child(2)::after{ right:20px; background:var(--tape-mustard); transform:rotate(5deg); }
+  .card:nth-child(3)::after{ left:24px; background:var(--tape-sage); transform:rotate(4deg); }
+  .card:nth-child(4)::after{ right:24px; background:var(--tape-blue); transform:rotate(-5deg); }
+  
+  .card:nth-child(1):hover{ transform: translateY(-8px) rotate(0deg); box-shadow:0 22px 40px var(--shadow); }
+  .card:nth-child(2):hover{ transform: translateY(-8px) rotate(0deg); box-shadow:0 22px 40px var(--shadow); }
+  .card:nth-child(3):hover{ transform: translateY(-8px) rotate(0deg); box-shadow:0 22px 40px var(--shadow); }
+  .card:nth-child(4):hover{ transform: translateY(-8px) rotate(0deg); box-shadow:0 22px 40px var(--shadow); }
+  
+  @media (max-width:600px){
+    .feature-grid{ grid-template-columns: 1fr; }
+  }
