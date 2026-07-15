@@ -442,28 +442,31 @@ def make_user(id,db,user):
     
     return{"message":"Updated successfully"}
 
-def get_all_boards(db,user,limit=50,skip=0):
+def get_all_boards(db, user, limit=50, skip=0):
 
-    cache_key="admin:boards:all"
-    cache_data=get_cache(cache_key)
+    cache_key = "admin:boards:all"
+
+    cache_data = get_cache(cache_key)
     if cache_data:
         return cache_data
 
-    board_cursor=db.boards.find({}).sort("_id",-1).skip(skip).limit(limit)
-    boards=[]
+    board_cursor = db.boards.find({}).sort("_id", -1).skip(skip).limit(limit)
+
+    boards = []
 
     for b in board_cursor:
         boards.append({
-            "id":str(b["_id"]),
-            "name":b["name"],
-            "description":b.get("description"),
-            "created_at":b["created_at"],
-            "updated_at":b["updated_at"]          
+            "id": str(b["_id"]),
+            "name": b["name"],
+            "description": b.get("description"),
+            "created_at": b["created_at"],
+            "updated_at": b["updated_at"],
         })
 
-    set_cache(cache_key,boards)
+    set_cache(cache_key, boards)
 
     return boards
+
 
 def delete_any_board(id,db,user):
     try:
