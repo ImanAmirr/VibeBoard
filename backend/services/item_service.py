@@ -443,6 +443,7 @@ def make_user(id,db,user):
     return{"message":"Updated successfully"}
 
 def get_all_boards(db, user, limit=50, skip=0):
+    print("get_all_boards called")
 
     cache_key = "admin:boards:all"
 
@@ -464,6 +465,7 @@ def get_all_boards(db, user, limit=50, skip=0):
         })
 
     set_cache(cache_key, boards)
+    print("Returning", len(boards), "boards")
 
     return boards
 
