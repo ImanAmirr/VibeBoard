@@ -1,5 +1,5 @@
 from fastapi import APIRouter,Depends,HTTPException,status
-from backend.models import User,UserResponse
+from backend.models import User
 from backend.database import users_collection,getdb
 from passlib.context import CryptContext
 from jose import jwt,JWTError
