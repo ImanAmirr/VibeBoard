@@ -13,7 +13,7 @@ export default function CreateBoard() {
 
         e.preventDefault();
         const token=localStorage.getItem("token");
-        const response=  await fetch("http://localhost:8000/boards", {
+        const response=  await fetch(`${import.meta.env.VITE_API_URL}/boards`, {
             method:"POST",
             headers:{
                 "Content-Type": "application/json",

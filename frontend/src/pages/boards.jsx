@@ -16,7 +16,7 @@ export default function Boards() {
 
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://localhost:8000/boards", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/boards`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -38,7 +38,7 @@ export default function Boards() {
     const handleDelete=async(boardId)=>{
 
         const token=localStorage.getItem("token");
-        const response=await fetch(`http://localhost:8000/boards/${boardId}`,{
+        const response=await fetch(`${import.meta.env.VITE_API_URL}/boards/${boardId}`,{
             method:"DELETE",
             headers:{
                 Authorization:`Bearer ${token}`,

@@ -16,7 +16,7 @@ export default function Admin() {
         }
 
         const token=localStorage.getItem("token");
-        const response=await fetch(`http://localhost:8000/admin/user/${userId}`,{
+        const response=await fetch(`${import.meta.env.VITE_API_URL}/admin/user/${userId}`,{
             method:"DELETE",
             headers:{
                 Authorization:`Bearer ${token}`,
@@ -42,7 +42,7 @@ export default function Admin() {
 
         const token=localStorage.getItem("token");
         const endpoint= 
-        user.role==="admin"? `http://localhost:8000/admin/user/${user.id}/make-user`:`http://localhost:8000/admin/user/${user.id}/make-admin`
+        user.role==="admin"? `${import.meta.env.VITE_API_URL}/admin/user/${user.id}/make-user`:`${import.meta.env.VITE_API_URL}/admin/user/${user.id}/make-admin`
         
         const response = await fetch(endpoint,{
             method:"PUT",
@@ -81,7 +81,7 @@ export default function Admin() {
         const token = localStorage.getItem("token");
     
         const response = await fetch(
-            `http://localhost:8000/admin/boards/${boardId}`,
+            `${import.meta.env.VITE_API_URL}/admin/boards/${boardId}`,
             {
                 method: "DELETE",
                 headers: {
@@ -107,7 +107,7 @@ export default function Admin() {
 
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://localhost:8000/admin/users", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/users`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -126,7 +126,7 @@ export default function Admin() {
 
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://localhost:8000/admin/boards", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/boards`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

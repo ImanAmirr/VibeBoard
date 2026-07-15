@@ -12,7 +12,7 @@ export default function Flashback() {
             const token = localStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:8000/flashbacks",
+                `${import.meta.env.VITE_API_URL}/flashbacks`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

@@ -14,7 +14,7 @@ export default function EditBoard(){
     const fetchBoard = async()=>{
         const token=localStorage.getItem("token");
 
-        const response= await fetch(`http://localhost:8000/boards/${boardId}`,{
+        const response= await fetch(`${import.meta.env.VITE_API_URL}/boards/${boardId}`,{
             headers:{
                 Authorization:`Bearer ${token}`,
             },
@@ -44,7 +44,7 @@ export default function EditBoard(){
     e.preventDefault();
 
     const token=localStorage.getItem("token");
-    const response=await fetch(`http://localhost:8000/boards/${boardId}`,{
+    const response=await fetch(`${import.meta.env.VITE_API_URL}/boards/${boardId}`,{
         method:"PUT",
         headers:{
             "Content-Type":"application/json",

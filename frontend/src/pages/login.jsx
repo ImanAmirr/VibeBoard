@@ -10,7 +10,7 @@ export default function Login() {
     const navigate=useNavigate()
 
     const handleLogin = async() => {
-        const response=await fetch("http://localhost:8000/login",{
+        const response=await fetch(`${import.meta.env.VITE_API_URL}/login`,{
             method:"POST",
             headers:{
                 "Content-type":"application/json"

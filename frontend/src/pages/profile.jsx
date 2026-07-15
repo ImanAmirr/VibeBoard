@@ -9,7 +9,7 @@ export default function Profile(){
     const fetchProfile=async()=>{
 
         const token=localStorage.getItem("token");
-        const response=await fetch("http://localhost:8000/me",{
+        const response=await fetch(`${import.meta.env.VITE_API_URL}/me`,{
             headers:{
                 Authorization:`Bearer ${token}`,
 

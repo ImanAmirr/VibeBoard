@@ -357,9 +357,14 @@ def get_flashback(db,user):
 
 #ADMIN ENDPOINTS
 
-def get_users(db, user):
+def get_users(db, user, limit=50, skip=0):
 
-    user_cursor = db.users.find({})
+    cache_key="admin:users:all"
+    cache_data=get_cache(cache_key)
+    if cache_data:
+        return cache_data
+
+    user_cursor = db.users.find({}).sort("_id",-1).skip(skip).limit(limit)
     result = []
 
     for u in user_cursor:
@@ -368,6 +373,8 @@ def get_users(db, user):
             "email": u["email"],
             "role": u.get("role", "user")
         })
+
+    set_cache(cache_key,result)
 
     return result
 
@@ -400,6 +407,8 @@ def delete_user(id,db,user):
     if result.deleted_count==0:
         raise HTTPException(status_code=404,detail="user not found")
     
+    delete_cache("admin:users:all")
+    
     return{"message":"user deleted successfully"}
     
 def make_admin(id,db,user):
@@ -412,6 +421,8 @@ def make_admin(id,db,user):
 
     if result.matched_count==0:
         raise HTTPException(status_code=404,detail="User not found")
+    
+    delete_cache("admin:users:all")
     
     return{"message":"Updated succesfully"}
     
@@ -427,11 +438,18 @@ def make_user(id,db,user):
     if result.matched_count==0:
         raise HTTPException(status_code=404,detail="User not found")
     
+    delete_cache("admin:users:all")
+    
     return{"message":"Updated successfully"}
 
-def get_all_boards(db,user):
+def get_all_boards(db,user,limit=50,skip=0):
 
-    board_cursor=db.boards.find({})
+    cache_key="admin:boards:all"
+    cache_data=get_cache(cache_key)
+    if cache_data:
+        return cache_data
+
+    board_cursor=db.boards.find({}).sort("_id",-1).skip(skip).limit(limit)
     boards=[]
 
     for b in board_cursor:
@@ -442,6 +460,8 @@ def get_all_boards(db,user):
             "created_at":b["created_at"],
             "updated_at":b["updated_at"]          
         })
+
+    set_cache(cache_key,boards)
 
     return boards
 
@@ -455,6 +475,8 @@ def delete_any_board(id,db,user):
 
     if result.deleted_count==0:
         raise HTTPException(status_code=404,detail="Board not found")
+    
+    delete_cache("admin:boards:all")
     
     return{"message":"Board deleted successfully"}
 

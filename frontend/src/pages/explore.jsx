@@ -14,7 +14,7 @@ export default function Explore() {
             const token = localStorage.getItem("token");
 
             const response = await fetch(
-                "http://localhost:8000/explore",
+                `${import.meta.env.VITE_API_URL}/explore`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -31,7 +31,7 @@ export default function Explore() {
             }
 
             const boardsResponse = await fetch(
-                "http://localhost:8000/boards",
+                `${import.meta.env.VITE_API_URL}/boards`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -57,7 +57,7 @@ export default function Explore() {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-            "http://localhost:8000/items",
+            `${import.meta.env.VITE_API_URL}/items`,
             {
                 method: "POST",
                 headers: {

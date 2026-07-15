@@ -20,6 +20,10 @@ db.flashbacks.create_index(
     expireAfterSeconds=86400
 )
 
+users_collection.create_index("email", unique=True)
+items_collection.create_index("user_id")
+boards_collection.create_index("user_id")
+
 #depend functionality
 def getdb():
     return db

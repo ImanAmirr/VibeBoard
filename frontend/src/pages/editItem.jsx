@@ -21,7 +21,7 @@ export default function EditItem() {
             const token = localStorage.getItem("token");
 
             const response = await fetch(
-                `http://localhost:8000/items/${itemId}`,
+                `${import.meta.env.VITE_API_URL}/items/${itemId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -52,7 +52,7 @@ export default function EditItem() {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-            `http://localhost:8000/items/${itemId}`,
+            `${import.meta.env.VITE_API_URL}/items/${itemId}`,
             {
                 method: "PUT",
                 headers: {
