@@ -47,6 +47,7 @@ export default function SignUp() {
                  type="email" 
                  value={email}
                  onChange={(e)=>setEmail(e.target.value)}
+                 required
                  />
 
                 <input className="auth-input" 
@@ -54,6 +55,7 @@ export default function SignUp() {
                  type="password" 
                  value={password}
                  onChange={(e)=>setPassword(e.target.value)}
+                 required
                  />
 
                 <button className="auth-button"

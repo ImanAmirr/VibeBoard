@@ -76,12 +76,14 @@ export default function EditBoard(){
                 placeholder="Board Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                required
             />
 
             <input
                 placeholder="Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+
             />
 
             <button onClick={handleEditBoard}>

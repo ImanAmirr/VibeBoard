@@ -1,4 +1,4 @@
-from pydantic import BaseModel,Field
+from pydantic import BaseModel,Field,HttpUrl,EmailStr
 from typing import Optional
 from datetime import datetime
 
@@ -6,7 +6,7 @@ from datetime import datetime
 class Item(BaseModel):
     board_id:str
     title:str=Field(...,min_length=2,max_length=50)
-    url:str=Field(...,min_length=5)
+    url:HttpUrl
     vibe:str=Field(...,min_length=2,max_length=50)
     note:Optional[str]=Field(None,max_length=100)
 
@@ -16,7 +16,7 @@ class ItemResponse(BaseModel):
     id:str
     board_id:str
     title:str
-    url:str
+    url:HttpUrl
     vibe:str
     note:Optional[str]=None
     created_at:datetime
@@ -49,11 +49,11 @@ class FlashbackResponse(BaseModel):
 
 #user model
 class User(BaseModel):
-    email:str
+    email:EmailStr
     password:str=Field(...,max_length=72)
     role:str="user"
 
 class UserResponse(BaseModel):
     id:str
-    email:str
+    email:EmailStr
     role:str

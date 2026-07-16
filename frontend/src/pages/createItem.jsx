@@ -27,7 +27,7 @@ export default function CreateItem() {
                 title,
                 url,
                 vibe,
-                note,
+                note:note || null,
                 board_id: boardId,
             }),
         });
@@ -50,18 +50,22 @@ export default function CreateItem() {
                     placeholder="Title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                    required
                 />
 
                 <input
-                    placeholder="URL"
+                    type="=url"
+                    placeholder="https://example.com"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
+                    required
                 />
 
                 <input
                     placeholder="Vibe"
                     value={vibe}
                     onChange={(e) => setVibe(e.target.value)}
+                    required
                 />
 
                 <input
