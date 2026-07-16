@@ -10,43 +10,47 @@ from backend.utilis import is_image_url
 
 #ITEM ENDPOINTS
 
-def create_item(item,db,user):
+def create_item(item, db, user):
 
     try:
-        board_obj_id=ObjectId(item.board_id)
+        board_obj_id = ObjectId(item.board_id)
     except InvalidId:
-        raise HTTPException(status_code=400,detail="invalid board id")
-    
-    board=db.boards.find_one({"_id":board_obj_id,"user_id":user["id"]})
+        raise HTTPException(status_code=400, detail="invalid board id")
+
+    board = db.boards.find_one({"_id": board_obj_id, "user_id": user["id"]})
     if not board:
-        raise HTTPException(status_code=404,detail="board not found")
-    
-    data_item=item.model_dump()
+        raise HTTPException(status_code=404, detail="board not found")
 
-    data_item["user_id"]=user["id"]
+    data_item = item.model_dump()
+    data_item["url"] = str(data_item["url"])  # ensure plain string, not Url object
 
-    data_item["created_at"]=datetime.now(timezone.utc)
-    data_item["updated_at"]=datetime.now(timezone.utc)
+    data_item["user_id"] = user["id"]
+    data_item["created_at"] = datetime.now(timezone.utc)
+    data_item["updated_at"] = datetime.now(timezone.utc)
 
-    result=db.items.insert_one(data_item) 
+    result = db.items.insert_one(data_item)
     delete_cache(f"items:{user['id']}:all")
-    q.enqueue(process_item, str(result.inserted_id))
 
+    try:
+        q.enqueue(process_item, str(result.inserted_id))
+    except Exception as e:
+        print(f"WARNING: failed to enqueue background job: {e}")
+        # item was already saved successfully — don't fail the request over this
 
     return {
-    "message": "item created",
-    "item": {
-        "id": str(result.inserted_id),
-        "title": data_item["title"],
-        "url": data_item["url"],
-        "vibe": data_item["vibe"],
-        "note": data_item.get("note"),
-        "board_id": data_item["board_id"],
-        "created_at": data_item["created_at"],
-        "updated_at": data_item["updated_at"],
-        "is_image": is_image_url(data_item["url"])
+        "message": "item created",
+        "item": {
+            "id": str(result.inserted_id),
+            "title": data_item["title"],
+            "url": data_item["url"],
+            "vibe": data_item["vibe"],
+            "note": data_item.get("note"),
+            "board_id": data_item["board_id"],
+            "created_at": data_item["created_at"],
+            "updated_at": data_item["updated_at"],
+            "is_image": is_image_url(data_item["url"])
+        }
     }
-}
 
 def get_items(vibe,search, limit,skip,db,user):
 
