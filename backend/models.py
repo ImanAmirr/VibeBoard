@@ -26,7 +26,7 @@ class ItemResponse(BaseModel):
 #request model    
 class Board(BaseModel):
     name:str=Field(...,min_length=2,max_length=30)
-    description:Optional[str]=Field(None,min_length=2,max_length=50)
+    description:Optional[str]=None
 
 #response model
 class BoardResponse(BaseModel):
