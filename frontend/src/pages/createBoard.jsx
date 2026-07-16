@@ -21,7 +21,7 @@ export default function CreateBoard() {
             },
             body:JSON.stringify({
                 name,
-                description
+                description:description || null
 
             }),
             });
