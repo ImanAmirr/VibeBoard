@@ -12,7 +12,6 @@ export default function CreateItem() {
     const [note, setNote] = useState("");
 
     const handleItem = async (e) => {
-
         e.preventDefault();
 
         const token = localStorage.getItem("token");
@@ -27,7 +26,7 @@ export default function CreateItem() {
                 title,
                 url,
                 vibe,
-                note:note || null,
+                note: note || null,
                 board_id: boardId,
             }),
         });
@@ -46,45 +45,46 @@ export default function CreateItem() {
             <div className="popup">
                 <h2>Create Item</h2>
 
-                <input
-                    placeholder="Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                />
+                <form onSubmit={handleItem}>
+                    <input
+                        placeholder="Title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                    />
 
-                <input
-                    type="=url"
-                    placeholder="https://example.com"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    required
-                />
+                    <input
+                        type="url"
+                        placeholder="https://example.com"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        required
+                    />
 
-                <input
-                    placeholder="Vibe"
-                    value={vibe}
-                    onChange={(e) => setVibe(e.target.value)}
-                    required
-                />
+                    <input
+                        placeholder="Vibe"
+                        value={vibe}
+                        onChange={(e) => setVibe(e.target.value)}
+                        required
+                    />
 
-                <input
-                    placeholder="Note"
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                />
+                    <input
+                        placeholder="Note"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                    />
 
-                <button onClick={handleItem}>
-                    Create
-                </button>
+                    <button type="submit">
+                        Create
+                    </button>
 
-                <button
-                    onClick={() =>
-                        navigate("/boards")
-                    }
-                >
-                    Cancel
-                </button>
+                    <button
+                        type="button"
+                        onClick={() => navigate(`/boards/${boardId}/items`)}
+                    >
+                        Cancel
+                    </button>
+                </form>
             </div>
         </div>
     );
