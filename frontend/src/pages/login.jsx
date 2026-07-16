@@ -5,30 +5,58 @@ import "./auth.css";
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [errors, setErrors] = useState({});
+    const [serverError, setServerError] = useState("");
 
     const navigate = useNavigate();
 
+    const validate = () => {
+        const newErrors = {};
+
+        if (!email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            newErrors.email = "Enter a valid email address";
+        }
+
+        if (!password) {
+            newErrors.password = "Password is required";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
+        setServerError("");
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email,
-                password,
-            }),
-        });
+        if (!validate()) {
+            return;
+        }
 
-        const data = await response.json();
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                }),
+            });
 
-        if (response.ok) {
-            localStorage.setItem("token", data.token);
-            navigate("/boards");
-        } else {
-            alert(data.detail);
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem("token", data.token);
+                navigate("/boards");
+            } else {
+                setServerError(data.detail || "Login failed");
+            }
+        } catch (err) {
+            setServerError("Something went wrong. Please try again.");
         }
     };
 
@@ -43,24 +71,32 @@ export default function Login() {
 
                 <h2>Login</h2>
 
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleLogin} noValidate>
                     <input
                         className="auth-input"
                         type="email"
                         placeholder="Email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
+                        }}
                     />
+                    {errors.email && <p className="auth-error">{errors.email}</p>}
 
                     <input
                         className="auth-input"
                         type="password"
                         placeholder="Password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
+                        }}
                     />
+                    {errors.password && <p className="auth-error">{errors.password}</p>}
+
+                    {serverError && <p className="auth-error">{serverError}</p>}
 
                     <button className="auth-button" type="submit">
                         Login

@@ -177,3 +177,10 @@
   .back-home:hover .arrow {
     transform: translateX(-3px);
   }
+
+  .auth-error {
+    color: #e53e3e;
+    font-size: 0.85rem;
+    margin-top: -8px;
+    margin-bottom: 8px;
+}
