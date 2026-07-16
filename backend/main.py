@@ -44,18 +44,24 @@ async def flashback_job():
             cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
 
             items = db.items.find({
-                "$or": [
-                    {"created_at": {"$gte": cutoff}},
-                    {"updated_at": {"$gte": cutoff}}
-                ]
+                "created_at": {"$lte": cutoff},
+                "flashback_sent": {"$ne": True},
             })
 
             for item in items:
                 print(f"\nFOUND ITEM: {item['title']} ({item['_id']})")
 
-                print("ABOUT TO QUEUE...")
-                q.enqueue(process_flashback_item, str(item["_id"]))
-                print("QUEUED SUCCESSFULLY")
+                result = db.items.update_one(
+                    {"_id": item["_id"], "flashback_sent": {"$ne": True}},
+                    {"$set": {"flashback_sent": True}},
+                )
+
+                if result.modified_count == 1:
+                    print("ABOUT TO QUEUE...")
+                    q.enqueue(process_flashback_item, str(item["_id"]))
+                    print("QUEUED SUCCESSFULLY")
+                else:
+                    print("SKIPPED (already claimed)")
 
         except Exception as e:
             import traceback

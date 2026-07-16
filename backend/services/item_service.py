@@ -503,14 +503,20 @@ def upload_file(file):
 def get_me(db,user):
     return user
 
-
 def get_explore_items(limit, skip, db, user):
 
-    items_cursor = db.items.find({}).sort("_id", -1).skip(skip).limit(limit)
+    items_cursor = db.items.find({}).sort("_id", -1)
 
     items = []
+    seen_urls = set()
 
     for item in items_cursor:
+
+        if item["url"] in seen_urls:
+            continue
+
+        seen_urls.add(item["url"])
+
         items.append({
             "id": str(item["_id"]),
             "title": item["title"],
@@ -522,4 +528,4 @@ def get_explore_items(limit, skip, db, user):
             "is_image": is_image_url(item["url"])
         })
 
-    return items
+    return items[skip:skip + limit]
