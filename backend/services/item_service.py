@@ -123,27 +123,26 @@ def get_item(id,db,user):
 
     return result
 
+
 def update_item(id,item,db,user):
 
     try:
         obj_id=ObjectId(id)
-
     except InvalidId:
         raise HTTPException(status_code=400,detail="invalid id")
     
-    #validate board id
     try:
         board_obj_id=ObjectId(item.board_id)
     except InvalidId:
         raise HTTPException(status_code=400,detail="invalid board id")
     
-    #check if board exists
     board_data=db.boards.find_one({"_id":board_obj_id,"user_id":user["id"]})
 
     if not board_data:
         raise HTTPException(status_code=404,detail="board not found")
     
     data_item=item.model_dump()
+    data_item["url"] = str(data_item["url"])  # <-- add this line
     data_item["updated_at"]=datetime.now(timezone.utc)
 
     result=db.items.update_one({'_id': obj_id,'user_id':user['id']},{"$set":data_item})
