@@ -84,12 +84,14 @@ export default function EditBoard() {
             if (response.ok) {
                 navigate("/boards");
             } else {
+                console.log("Validation error:", data.detail);
                 const message = typeof data.detail === "string"
                     ? data.detail
                     : "Please check your input and try again";
                 setServerError(message);
             }
-        } catch (err) {
+            }
+        catch (err) {
             setServerError("Something went wrong. Please try again.");
         }
     };
