@@ -1,4 +1,4 @@
-import "./board.css";
+import "./boards.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,30 +7,55 @@ export default function CreateBoard() {
 
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
+    const [errors, setErrors] = useState({});
+    const [serverError, setServerError] = useState("");
+
+    const validate = () => {
+        const newErrors = {};
+
+        if (!name.trim()) {
+            newErrors.name = "Board name is required";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleCreate = async (e) => {
         e.preventDefault();
+        setServerError("");
 
-        const token = localStorage.getItem("token");
+        if (!validate()) {
+            return;
+        }
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/boards`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-                name,
-                description: description || null,
-            }),
-        });
+        try {
+            const token = localStorage.getItem("token");
 
-        const data = await response.json();
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/boards`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    name,
+                    description: description || null,
+                }),
+            });
 
-        if (response.ok) {
-            navigate("/boards");
-        } else {
-            console.log(data.detail);
+            const data = await response.json();
+
+            if (response.ok) {
+                navigate("/boards");
+            } else {
+                const message = typeof data.detail === "string"
+                    ? data.detail
+                    : "Please check your input and try again";
+                setServerError(message);
+            }
+        } catch (err) {
+            setServerError("Something went wrong. Please try again.");
         }
     };
 
@@ -39,13 +64,17 @@ export default function CreateBoard() {
             <div className="popup">
                 <h2>Create Board</h2>
 
-                <form onSubmit={handleCreate}>
+                <form onSubmit={handleCreate} noValidate>
                     <input
+                        className={errors.name ? "input-error" : ""}
                         placeholder="Board Name"
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
+                        onChange={(e) => {
+                            setName(e.target.value);
+                            if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
+                        }}
                     />
+                    {errors.name && <p className="field-error">{errors.name}</p>}
 
                     <input
                         placeholder="Description"
@@ -53,16 +82,21 @@ export default function CreateBoard() {
                         onChange={(e) => setDescription(e.target.value)}
                     />
 
-                    <button type="submit">
-                        Create
-                    </button>
+                    {serverError && <p className="form-error">{serverError}</p>}
 
-                    <button
-                        type="button"
-                        onClick={() => navigate("/boards")}
-                    >
-                        Cancel
-                    </button>
+                    <div className="button-group">
+                        <button
+                            type="button"
+                            className="popup-cancel"
+                            onClick={() => navigate("/boards")}
+                        >
+                            Cancel
+                        </button>
+
+                        <button type="submit" className="popup-create">
+                            Create
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

@@ -1,99 +1,145 @@
 import "./boards.css";
-import { useState,useEffect } from "react";
-import { Link,useNavigate,useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-export default function EditBoard(){
+export default function EditBoard() {
 
-   const{boardId}=useParams();
-   const navigate = useNavigate();
-   const[name,setName]=useState("");
-   const[description,setDescription]=useState("");
+    const { boardId } = useParams();
+    const navigate = useNavigate();
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [errors, setErrors] = useState({});
+    const [serverError, setServerError] = useState("");
+    const [loading, setLoading] = useState(true);
 
-   useEffect(()=>{
+    useEffect(() => {
 
-    const fetchBoard = async()=>{
-        const token=localStorage.getItem("token");
+        const fetchBoard = async () => {
+            const token = localStorage.getItem("token");
 
-        const response= await fetch(`${import.meta.env.VITE_API_URL}/boards/${boardId}`,{
-            headers:{
-                Authorization:`Bearer ${token}`,
-            },
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/boards/${boardId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
 
-        });
+                const data = await response.json();
 
-        const data= await response.json()
+                if (response.ok) {
+                    setName(data.name);
+                    setDescription(data.description || "");
+                } else {
+                    const message = typeof data.detail === "string"
+                        ? data.detail
+                        : "Couldn't load board";
+                    setServerError(message);
+                }
+            } catch (err) {
+                setServerError("Something went wrong. Please try again.");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        if(response.ok){
-            setName(data.name);
-            setDescription(data.description);
+        fetchBoard();
+    }, [boardId]);
+
+    const validate = () => {
+        const newErrors = {};
+
+        if (!name.trim()) {
+            newErrors.name = "Board name is required";
         }
 
-        else{
-            console.log(data.detail);
-
-        }
-
-
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
-    fetchBoard();
-   },[boardId]);
+    const handleEditBoard = async (e) => {
 
-   const handleEditBoard= async(e)=>{
+        e.preventDefault();
+        setServerError("");
 
-    e.preventDefault();
+        if (!validate()) {
+            return;
+        }
 
-    const token=localStorage.getItem("token");
-    const response=await fetch(`${import.meta.env.VITE_API_URL}/boards/${boardId}`,{
-        method:"PUT",
-        headers:{
-            "Content-Type":"application/json",
-            Authorization:`Bearer ${token}`,
-        },
-        body:JSON.stringify({
-            name,
-            description,
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/boards/${boardId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    name,
+                    description,
+                }),
+            });
 
-        }),
+            const data = await response.json();
 
-    });
+            if (response.ok) {
+                navigate("/boards");
+            } else {
+                const message = typeof data.detail === "string"
+                    ? data.detail
+                    : "Please check your input and try again";
+                setServerError(message);
+            }
+        } catch (err) {
+            setServerError("Something went wrong. Please try again.");
+        }
+    };
 
-    const data=await response.json();
+    return (
+        <div className="create-item-page">
+            <div className="popup">
+                <h2>Edit Board</h2>
 
-    if(response.ok){
-        navigate("/boards");
-    }
-    else{
-        console.log(data.detail);
-    }
-   }
-   return (
-    <div className="create-item-page">
-        <div className="popup">
-            <h2>Edit Board</h2>
+                {loading ? (
+                    <p style={{ fontFamily: "'Space Grotesk', sans-serif", color: "#6b6552" }}>
+                        Loading board...
+                    </p>
+                ) : (
+                    <form onSubmit={handleEditBoard} noValidate>
+                        <input
+                            className={errors.name ? "input-error" : ""}
+                            placeholder="Board Name"
+                            value={name}
+                            onChange={(e) => {
+                                setName(e.target.value);
+                                if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
+                            }}
+                        />
+                        {errors.name && <p className="field-error">{errors.name}</p>}
 
-            <input
-                placeholder="Board Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-            />
+                        <input
+                            placeholder="Description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
 
-            <input
-                placeholder="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                        {serverError && <p className="form-error">{serverError}</p>}
 
-            />
+                        <div className="button-group">
+                            <button
+                                type="button"
+                                className="popup-cancel"
+                                onClick={() => navigate("/boards")}
+                            >
+                                Cancel
+                            </button>
 
-            <button onClick={handleEditBoard}>
-                Save Changes
-            </button>
-
-            <button onClick={() => navigate("/boards")}>
-                Cancel
-            </button>
+                            <button type="submit" className="popup-create">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                )}
+            </div>
         </div>
-    </div>
-);
+    );
 }
