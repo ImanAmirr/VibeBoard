@@ -63,7 +63,7 @@ export default function Login() {
     return (
         <div className="auth-page">
             <Link to="/" className="back-home">
-                ← Back to Home
+                <span className="arrow">←</span> Back to Home
             </Link>
 
             <div className="auth-card">
@@ -73,7 +73,7 @@ export default function Login() {
 
                 <form onSubmit={handleLogin} noValidate>
                     <input
-                        className="auth-input"
+                        className={`auth-input ${errors.email ? "auth-input-error" : ""}`}
                         type="email"
                         placeholder="Email"
                         value={email}
@@ -85,7 +85,7 @@ export default function Login() {
                     {errors.email && <p className="auth-error">{errors.email}</p>}
 
                     <input
-                        className="auth-input"
+                        className={`auth-input ${errors.password ? "auth-input-error" : ""}`}
                         type="password"
                         placeholder="Password"
                         value={password}
@@ -96,7 +96,7 @@ export default function Login() {
                     />
                     {errors.password && <p className="auth-error">{errors.password}</p>}
 
-                    {serverError && <p className="auth-error">{serverError}</p>}
+                    {serverError && <p className="auth-server-error">{serverError}</p>}
 
                     <button className="auth-button" type="submit">
                         Login

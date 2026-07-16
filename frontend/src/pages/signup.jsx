@@ -5,29 +5,59 @@ import { useState } from "react";
 export default function SignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [errors, setErrors] = useState({});
+    const [serverError, setServerError] = useState("");
 
     const navigate = useNavigate();
 
+    const validate = () => {
+        const newErrors = {};
+
+        if (!email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            newErrors.email = "Enter a valid email address";
+        }
+
+        if (!password) {
+            newErrors.password = "Password is required";
+        } else if (password.length < 8) {
+            newErrors.password = "Password must be at least 8 characters";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSignup = async (e) => {
         e.preventDefault();
+        setServerError("");
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/signup`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email,
-                password,
-            }),
-        });
+        if (!validate()) {
+            return;
+        }
 
-        const data = await response.json();
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/signup`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                }),
+            });
 
-        if (response.ok) {
-            navigate("/login");
-        } else {
-            alert(data.detail);
+            const data = await response.json();
+
+            if (response.ok) {
+                navigate("/login");
+            } else {
+                setServerError(data.detail || "Sign up failed");
+            }
+        } catch (err) {
+            setServerError("Something went wrong. Please try again.");
         }
     };
 
@@ -41,24 +71,32 @@ export default function SignUp() {
                 <span className="auth-eyebrow">Get started</span>
                 <h2>Register</h2>
 
-                <form onSubmit={handleSignup}>
+                <form onSubmit={handleSignup} noValidate>
                     <input
-                        className="auth-input"
+                        className={`auth-input ${errors.email ? "auth-input-error" : ""}`}
                         type="email"
                         placeholder="Email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
+                        }}
                     />
+                    {errors.email && <p className="auth-error">{errors.email}</p>}
 
                     <input
-                        className="auth-input"
+                        className={`auth-input ${errors.password ? "auth-input-error" : ""}`}
                         type="password"
                         placeholder="Password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
+                        }}
                     />
+                    {errors.password && <p className="auth-error">{errors.password}</p>}
+
+                    {serverError && <p className="auth-server-error">{serverError}</p>}
 
                     <button className="auth-button" type="submit">
                         Register
