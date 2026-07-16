@@ -20,12 +20,14 @@ q = Queue(connection=redis_conn)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://vibe-board-khaki.vercel.app",
+        "http://localhost:5173", 
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 app.include_router(router)
 app.include_router(auth_router)
 
