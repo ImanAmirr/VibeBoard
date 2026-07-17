@@ -11,54 +11,29 @@ from backend.task import process_flashback_item
 
 #ITEM ENDPOINTS
 
-def create_item(item, db, user):
+def create_board(board,db,user):
 
-    try:
-        board_obj_id = ObjectId(item.board_id)
-    except InvalidId:
-        raise HTTPException(status_code=400, detail="invalid board id")
+    data_board=board.model_dump()
 
-    board = db.boards.find_one({"_id": board_obj_id, "user_id": user["id"]})
-    if not board:
-        raise HTTPException(status_code=404, detail="board not found")
+    data_board["user_id"]=user["id"]
 
-    data_item = item.model_dump()
+    data_board["created_at"]=datetime.now(timezone.utc)
+    data_board["updated_at"]=datetime.now(timezone.utc)
 
-    # ensure URL is stored as string
-    data_item["url"] = str(data_item["url"])
+    result = db.boards.insert_one(data_board)
+    q.enqueue(process_board, str(result.inserted_id))
 
-    data_item["user_id"] = user["id"]
-    data_item["created_at"] = datetime.now(timezone.utc)
-    data_item["updated_at"] = datetime.now(timezone.utc)
+    delete_cache(f"boards:{user['id']}:all")
+    delete_cache("admin:boards:all")
 
-    # save item
-    result = db.items.insert_one(data_item)
-
-    # clear cache
-    delete_cache(f"items:{user['id']}:all")
-
-    # create flashback in background
-    try:
-        job = q.enqueue(process_flashback_item, str(result.inserted_id))
-        print(
-            f"FLASHBACK JOB QUEUED: {job.id} ITEM: {result.inserted_id}"
-        )
-
-    except Exception as e:
-          print(f"WARNING: failed to enqueue flashback job: {e}")
-
-    return {
-        "message": "item created",
-        "item": {
+    return{
+        "message":"board created!",
+        "board_data": {
             "id": str(result.inserted_id),
-            "title": data_item["title"],
-            "url": data_item["url"],
-            "vibe": data_item["vibe"],
-            "note": data_item.get("note"),
-            "board_id": data_item["board_id"],
-            "created_at": data_item["created_at"],
-            "updated_at": data_item["updated_at"],
-            "is_image": is_image_url(data_item["url"])
+            "name": data_board["name"],
+            "description": data_board.get("description"),
+            "created_at": data_board["created_at"],
+            "updated_at": data_board["updated_at"]
         }
     }
 def get_items(vibe,search, limit,skip,db,user):
