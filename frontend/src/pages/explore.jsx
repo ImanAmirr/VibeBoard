@@ -6,6 +6,7 @@ export default function Explore() {
     const [boards, setBoards] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
     const [items, setItems] = useState([]);
+    const [toast, setToast] = useState("");
 
     useEffect(() => {
 
@@ -77,10 +78,12 @@ export default function Explore() {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Item saved!");
             setSelectedItem(null);
+            setToast("Item saved!");
+            setTimeout(() => setToast(""), 2500);
         } else {
-            alert(data.detail);
+            setToast(data.detail || "Couldn't save item");
+            setTimeout(() => setToast(""), 2500);
         }
     };
 
@@ -119,7 +122,9 @@ export default function Explore() {
                     </button>
 
                     {!item.is_image && (
+
                         <a
+                        
                         
                             href={item.url}
                             target="_blank"
@@ -156,6 +161,12 @@ export default function Explore() {
                             Cancel
                         </button>
                     </div>
+                </div>
+            )}
+
+            {toast && (
+                <div className="toast">
+                    {toast}
                 </div>
             )}
 

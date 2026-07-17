@@ -13,6 +13,9 @@ def process_board(board_id: str):
 
 def process_flashback_item(item_id: str):
 
+    print("DB:", db.name)
+    print("LOOKING FOR:", item_id)
+
     item = db.items.find_one({"_id": ObjectId(item_id)})
 
     if not item:
