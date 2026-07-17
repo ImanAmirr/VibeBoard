@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from bson import ObjectId
 from backend.database import db
+from pymongo.errors import DuplicateKeyError
 
 
 def process_item(item_id: str):
@@ -11,10 +12,9 @@ def process_board(board_id: str):
     print(f"Processing board: {board_id}")
 
 
-def process_flashback_item(item_id: str):
+from pymongo.errors import DuplicateKeyError
 
-    print("DB:", db.name)
-    print("LOOKING FOR:", item_id)
+def process_flashback_item(item_id: str):
 
     item = db.items.find_one({"_id": ObjectId(item_id)})
 
@@ -22,18 +22,17 @@ def process_flashback_item(item_id: str):
         print(f"Item {item_id} not found.")
         return
 
-    exists = db.flashbacks.find_one({"item_id": item["_id"]})
+    try:
+        db.flashbacks.insert_one({
+            "item_id": item_id,
+            "user_id": item["user_id"],
+            "title": item["title"],
+            "vibe": item["vibe"],
+            "message": "You worked on this recently",
+            "created_at": datetime.now(timezone.utc)
+        })
 
-    if exists:
-        return
+        print(f"Flashback created for item {item_id}.")
 
-    db.flashbacks.insert_one({
-        "item_id": item_id,
-        "user_id": item["user_id"],
-        "title": item["title"],
-        "vibe": item["vibe"],
-        "message": "You worked on this recently",
-        "created_at": datetime.now(timezone.utc)
-    })
-
-    print(f"Flashback created for item {item_id}.")
+    except DuplicateKeyError:
+        print(f"Flashback already exists for item {item_id}.")
