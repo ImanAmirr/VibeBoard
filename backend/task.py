@@ -22,7 +22,7 @@ def process_flashback_item(item_id: str):
         print(f"Item {item_id} not found.")
         return
 
-    exists = db.flashbacks.find_one({"item_id": item_id})
+    exists = db.flashbacks.find_one({"item_id": item["_id"]})
 
     if exists:
         return
