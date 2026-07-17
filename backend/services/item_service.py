@@ -11,29 +11,54 @@ from backend.task import process_flashback_item
 
 #ITEM ENDPOINTS
 
-def create_board(board,db,user):
+def create_item(item, db, user):
 
-    data_board=board.model_dump()
+    try:
+        board_obj_id = ObjectId(item.board_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="invalid board id")
 
-    data_board["user_id"]=user["id"]
+    board = db.boards.find_one({"_id": board_obj_id, "user_id": user["id"]})
+    if not board:
+        raise HTTPException(status_code=404, detail="board not found")
 
-    data_board["created_at"]=datetime.now(timezone.utc)
-    data_board["updated_at"]=datetime.now(timezone.utc)
+    data_item = item.model_dump()
 
-    result = db.boards.insert_one(data_board)
-    q.enqueue(process_board, str(result.inserted_id))
+    # ensure URL is stored as string
+    data_item["url"] = str(data_item["url"])
 
-    delete_cache(f"boards:{user['id']}:all")
-    delete_cache("admin:boards:all")
+    data_item["user_id"] = user["id"]
+    data_item["created_at"] = datetime.now(timezone.utc)
+    data_item["updated_at"] = datetime.now(timezone.utc)
 
-    return{
-        "message":"board created!",
-        "board_data": {
+    # save item
+    result = db.items.insert_one(data_item)
+
+    # clear cache
+    delete_cache(f"items:{user['id']}:all")
+
+    # create flashback in background
+    try:
+        job = q.enqueue(process_flashback_item, str(result.inserted_id))
+        print(
+            f"FLASHBACK JOB QUEUED: {job.id} ITEM: {result.inserted_id}"
+        )
+
+    except Exception as e:
+          print(f"WARNING: failed to enqueue flashback job: {e}")
+
+    return {
+        "message": "item created",
+        "item": {
             "id": str(result.inserted_id),
-            "name": data_board["name"],
-            "description": data_board.get("description"),
-            "created_at": data_board["created_at"],
-            "updated_at": data_board["updated_at"]
+            "title": data_item["title"],
+            "url": data_item["url"],
+            "vibe": data_item["vibe"],
+            "note": data_item.get("note"),
+            "board_id": data_item["board_id"],
+            "created_at": data_item["created_at"],
+            "updated_at": data_item["updated_at"],
+            "is_image": is_image_url(data_item["url"])
         }
     }
 def get_items(vibe,search, limit,skip,db,user):
@@ -171,6 +196,7 @@ def create_board(board,db,user):
     q.enqueue(process_board, str(result.inserted_id))
 
     delete_cache(f"boards:{user['id']}:all")
+    delete_cache("admin:boards:all")
 
     return{
         "message":"board created!",
@@ -182,7 +208,6 @@ def create_board(board,db,user):
             "updated_at": data_board["updated_at"]
         }
     }
-
 def get_boards(search,limit,skip,db,user):
 
     use_cache = not search
@@ -264,6 +289,7 @@ def update_board(id,board,db,user):
     
     delete_cache(f"board:{user['id']}:{id}")
     delete_cache(f"boards:{user['id']}:all")
+    delete_cache("admin:boards:all")
     
     return {
         "message": "board updated successfully"
@@ -284,6 +310,7 @@ def delete_board(id,db,user):
     
     delete_cache(f"board:{user['id']}:{id}")
     delete_cache(f"boards:{user['id']}:all")
+    delete_cache("admin:boards:all")
 
     return{
         "message":"board deleted successfully!"
