@@ -210,33 +210,39 @@ def create_board(board,db,user):
         }
     }
 
-def get_all_boards(db, user, limit=50, skip=0):
-    print("get_all_boards called")
+def get_boards(search,limit,skip,db,user):
 
-    cache_key = "admin:boards:all"
+    use_cache = not search
+    cache_key=f"boards:{user['id']}:all"
 
-    cache_data = get_cache(cache_key)
-    if cache_data:
-        return cache_data
+    if use_cache:
+        cached_data=get_cache(cache_key)
+        if cached_data:
+            return cached_data
 
-    board_cursor = db.boards.find({}).sort("_id", -1).skip(skip).limit(limit)
+    query={}
 
-    boards = []
+    if search:
+        query["name"]={'$regex':search,'$options':'i'}
 
-    for b in board_cursor:
+    boards_cursor= db.boards.find({**query,'user_id':user["id"]}).sort('_id',-1).limit(limit).skip(skip)
+    boards=[]
+
+    for board in boards_cursor:
         boards.append({
-            "id": str(b["_id"]),
-            "name": b["name"],
-            "description": b.get("description"),
-            "is_private": b.get("is_private", True),
-            "created_at": b["created_at"],
-            "updated_at": b["updated_at"],
+            "id":str(board["_id"]),
+            "name":board["name"],
+            "description":board.get("description"),
+            "is_private":board.get("is_private", True),
+            "created_at":board["created_at"],
+            "updated_at":board["updated_at"]
         })
 
-    set_cache(cache_key, boards)
-    print("Returning", len(boards), "boards")
+    if use_cache:
+        set_cache(cache_key,boards)   
 
     return boards
+
 
 def get_board(id,db,user):
 
@@ -474,6 +480,7 @@ def get_all_boards(db, user, limit=50, skip=0):
             "id": str(b["_id"]),
             "name": b["name"],
             "description": b.get("description"),
+            "is_private": b.get("is_private", True),   # <-- add this line
             "created_at": b["created_at"],
             "updated_at": b["updated_at"],
         })
