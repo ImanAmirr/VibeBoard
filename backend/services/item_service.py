@@ -510,10 +510,9 @@ def upload_file(file):
 
 def get_me(db,user):
     return user
-
 def get_explore_items(limit, skip, db, user):
 
-    items_cursor = db.items.find({}).sort("_id", -1)
+    items_cursor = db.items.find({"is_saved_copy": {"$ne": True}}).sort("_id", -1)
 
     items = []
     seen_urls = set()

@@ -71,6 +71,7 @@ export default function Explore() {
                     vibe: selectedItem.vibe,
                     note: selectedItem.note,
                     board_id: boardId,
+                    is_saved_copy: true,
                 }),
             }
         );

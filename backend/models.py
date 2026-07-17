@@ -9,6 +9,7 @@ class Item(BaseModel):
     url:HttpUrl
     vibe:str=Field(...,min_length=2,max_length=50)
     note:Optional[str]=Field(None,max_length=100)
+    is_saved_copy:bool=False
 
 
 #pydantic model(response)
