@@ -152,6 +152,7 @@ def update_item(id,item,db,user):
     
     data_item=item.model_dump()
     data_item["url"] = str(data_item["url"])  # <-- add this line
+    data_item.pop("is_saved_copy", None)  # never let edits touch this flag
     data_item["updated_at"]=datetime.now(timezone.utc)
 
     result=db.items.update_one({'_id': obj_id,'user_id':user['id']},{"$set":data_item})
