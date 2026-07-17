@@ -82,7 +82,7 @@ export default function CreateBoard() {
                             checked={!isPrivate}
                             onChange={(e) => setIsPrivate(!e.target.checked)}
                         />
-                        Make this board public (visible in Explore)
+                        Make this board public
                     </label>
 
                     {serverError && <p className="form-error">{serverError}</p>}
