@@ -39,12 +39,16 @@ def create_item(item, db, user):
 
     # create flashback in background
     try:
-        q.enqueue(
+        job = q.enqueue(
             process_flashback_item,
             str(result.inserted_id)
         )
+        print(
+            f"FLASHBACK JOB QUEUED: {job.id} ITEM: {result.inserted_id}"
+        )
+
     except Exception as e:
-        print(f"WARNING: failed to enqueue flashback job: {e}")
+          print(f"WARNING: failed to enqueue flashback job: {e}")
 
     return {
         "message": "item created",
