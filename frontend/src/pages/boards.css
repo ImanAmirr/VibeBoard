@@ -420,3 +420,13 @@
 
   animation: error-in .22s ease-out;
 }
+
+.visibility-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -6px 0 18px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  color: #6b6552;
+}

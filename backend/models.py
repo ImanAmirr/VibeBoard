@@ -28,6 +28,8 @@ class ItemResponse(BaseModel):
 class Board(BaseModel):
     name:str=Field(...,min_length=2,max_length=30)
     description:Optional[str]=None
+    is_private:bool=True
+
 
 #response model
 class BoardResponse(BaseModel):
@@ -36,6 +38,7 @@ class BoardResponse(BaseModel):
     description:Optional[str]=None
     created_at:datetime
     updated_at:datetime
+    is_private:bool
 
 
 #flashback model

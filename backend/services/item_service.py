@@ -204,39 +204,37 @@ def create_board(board,db,user):
             "id": str(result.inserted_id),
             "name": data_board["name"],
             "description": data_board.get("description"),
+            "is_private": data_board["is_private"],
             "created_at": data_board["created_at"],
             "updated_at": data_board["updated_at"]
         }
     }
-def get_boards(search,limit,skip,db,user):
 
-    use_cache = not search
-    cache_key=f"boards:{user['id']}:all"
+def get_all_boards(db, user, limit=50, skip=0):
+    print("get_all_boards called")
 
-    if use_cache:
-        cached_data=get_cache(cache_key)
-        if cached_data:
-            return cached_data
+    cache_key = "admin:boards:all"
 
-    query={}
+    cache_data = get_cache(cache_key)
+    if cache_data:
+        return cache_data
 
-    if search:
-        query["name"]={'$regex':search,'$options':'i'}
+    board_cursor = db.boards.find({}).sort("_id", -1).skip(skip).limit(limit)
 
-    boards_cursor= db.boards.find({**query,'user_id':user["id"]}).sort('_id',-1).limit(limit).skip(skip)
-    boards=[]
+    boards = []
 
-    for board in boards_cursor:
+    for b in board_cursor:
         boards.append({
-            "id":str(board["_id"]),
-            "name":board["name"],
-            "description":board.get("description"),
-            "created_at":board["created_at"],
-            "updated_at":board["updated_at"]
+            "id": str(b["_id"]),
+            "name": b["name"],
+            "description": b.get("description"),
+            "is_private": b.get("is_private", True),
+            "created_at": b["created_at"],
+            "updated_at": b["updated_at"],
         })
 
-    if use_cache:
-        set_cache(cache_key,boards)   
+    set_cache(cache_key, boards)
+    print("Returning", len(boards), "boards")
 
     return boards
 
@@ -263,6 +261,7 @@ def get_board(id,db,user):
         "id":str(board_data["_id"]),
         "name":board_data["name"],
         "description":board_data.get('description'),
+        "is_private":board_data.get("is_private", True),
         "created_at":board_data["created_at"],
         "updated_at":board_data["updated_at"]
     }
@@ -513,18 +512,25 @@ def upload_file(file):
 
 def get_me(db,user):
     return user
+
+
 def get_explore_items(limit, skip, db, user):
 
-    items_cursor = db.items.find({"is_saved_copy": {"$ne": True}}).sort("_id", -1)
+    public_board_ids = {
+        str(b["_id"]) for b in db.boards.find({"is_private": False}, {"_id": 1})
+    }
+
+    items_cursor = db.items.find({
+        "is_saved_copy": {"$ne": True},
+        "board_id": {"$in": list(public_board_ids)},
+    }).sort("_id", -1)
 
     items = []
     seen_urls = set()
 
     for item in items_cursor:
-
         if item["url"] in seen_urls:
             continue
-
         seen_urls.add(item["url"])
 
         items.append({

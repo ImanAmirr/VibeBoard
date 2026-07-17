@@ -7,16 +7,13 @@ export default function CreateBoard() {
 
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
+    const [isPrivate, setIsPrivate] = useState(true);
     const [errors, setErrors] = useState({});
     const [serverError, setServerError] = useState("");
 
     const validate = () => {
         const newErrors = {};
-
-        if (!name.trim()) {
-            newErrors.name = "Board name is required";
-        }
-
+        if (!name.trim()) newErrors.name = "Board name is required";
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -25,9 +22,7 @@ export default function CreateBoard() {
         e.preventDefault();
         setServerError("");
 
-        if (!validate()) {
-            return;
-        }
+        if (!validate()) return;
 
         try {
             const token = localStorage.getItem("token");
@@ -41,6 +36,7 @@ export default function CreateBoard() {
                 body: JSON.stringify({
                     name,
                     description: description || null,
+                    is_private: isPrivate,
                 }),
             });
 
@@ -49,9 +45,7 @@ export default function CreateBoard() {
             if (response.ok) {
                 navigate("/boards");
             } else {
-                const message = typeof data.detail === "string"
-                    ? data.detail
-                    : "Please check your input and try again";
+                const message = typeof data.detail === "string" ? data.detail : "Please check your input and try again";
                 setServerError(message);
             }
         } catch (err) {
@@ -82,17 +76,21 @@ export default function CreateBoard() {
                         onChange={(e) => setDescription(e.target.value)}
                     />
 
+                    <label className="visibility-toggle">
+                        <input
+                            type="checkbox"
+                            checked={!isPrivate}
+                            onChange={(e) => setIsPrivate(!e.target.checked)}
+                        />
+                        Make this board public (visible in Explore)
+                    </label>
+
                     {serverError && <p className="form-error">{serverError}</p>}
 
                     <div className="button-group">
-                        <button
-                            type="button"
-                            className="popup-cancel"
-                            onClick={() => navigate("/boards")}
-                        >
+                        <button type="button" className="popup-cancel" onClick={() => navigate("/boards")}>
                             Cancel
                         </button>
-
                         <button type="submit" className="popup-create">
                             Create
                         </button>
