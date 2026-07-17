@@ -7,6 +7,7 @@ from backend.cache import set_cache,delete_cache,get_cache
 from backend.task import process_item,process_board
 from backend.redis_conn import q
 from backend.utilis import is_image_url
+from backend.task import process_flashback_item
 
 #ITEM ENDPOINTS
 
@@ -22,20 +23,28 @@ def create_item(item, db, user):
         raise HTTPException(status_code=404, detail="board not found")
 
     data_item = item.model_dump()
-    data_item["url"] = str(data_item["url"])  # ensure plain string, not Url object
+
+    # ensure URL is stored as string
+    data_item["url"] = str(data_item["url"])
 
     data_item["user_id"] = user["id"]
     data_item["created_at"] = datetime.now(timezone.utc)
     data_item["updated_at"] = datetime.now(timezone.utc)
 
+    # save item
     result = db.items.insert_one(data_item)
+
+    # clear cache
     delete_cache(f"items:{user['id']}:all")
 
+    # create flashback in background
     try:
-        q.enqueue(process_item, str(result.inserted_id))
+        q.enqueue(
+            process_flashback_item,
+            str(result.inserted_id)
+        )
     except Exception as e:
-        print(f"WARNING: failed to enqueue background job: {e}")
-        # item was already saved successfully — don't fail the request over this
+        print(f"WARNING: failed to enqueue flashback job: {e}")
 
     return {
         "message": "item created",
@@ -51,7 +60,6 @@ def create_item(item, db, user):
             "is_image": is_image_url(data_item["url"])
         }
     }
-
 def get_items(vibe,search, limit,skip,db,user):
 
     use_cache = not vibe and not search
