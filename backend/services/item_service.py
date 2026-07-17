@@ -39,10 +39,7 @@ def create_item(item, db, user):
 
     # create flashback in background
     try:
-        job = q.enqueue(
-            process_flashback_item,
-            str(result.inserted_id)
-        )
+        job = q.enqueue(process_flashback_item, str(result.inserted_id))
         print(
             f"FLASHBACK JOB QUEUED: {job.id} ITEM: {result.inserted_id}"
         )
