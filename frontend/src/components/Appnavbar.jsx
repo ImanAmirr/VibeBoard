@@ -71,19 +71,12 @@ export default function AppNavbar() {
         className={({ isActive }) => (isActive ? "active-link" : "")}>
           Explore
           </NavLink>
-
-        
-
-
-       
-
-
       </div>
 
       <div className="buttons">
-        <div className="user-avatar">
-          <Link to="/me">U</Link>
-        </div>
+      <div className="user-avatar">
+      <Link to="/me">{user?.email ? user.email[0].toUpperCase() : "U"}</Link>
+     </div>
 
         <Link to="/">
           <button className="btn-ghost">Logout</button>
