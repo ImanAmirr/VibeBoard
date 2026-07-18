@@ -76,7 +76,7 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--tape-mustard);
+    background: var(--tape-coral);
     color: var(--board);
     display: flex;
     align-items: center;
@@ -84,7 +84,7 @@
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
     font-size: 13px;
-  }
+}
   
   .navbar button {
     padding: 8px 18px;
