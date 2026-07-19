@@ -39,8 +39,6 @@ def home():
 async def flashback_job():
     while True:
         try:
-            print("Running flashback job...")
-
             cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
 
             items = db.items.find({
@@ -49,35 +47,22 @@ async def flashback_job():
             })
 
             for item in items:
-                print(f"\nFOUND ITEM: {item['title']} ({item['_id']})")
-
                 result = db.items.update_one(
                     {"_id": item["_id"], "flashback_sent": {"$ne": True}},
                     {"$set": {"flashback_sent": True}},
                 )
 
                 if result.modified_count == 1:
-                    print("ABOUT TO QUEUE...")
                     q.enqueue(process_flashback_item, str(item["_id"]))
-                    print("QUEUED SUCCESSFULLY")
-                else:
-                    print("SKIPPED (already claimed)")
 
-        except Exception as e:
+        except Exception:
             import traceback
-            print("\nFLASHBACK JOB ERROR:")
+            print("FLASHBACK JOB ERROR:")
             traceback.print_exc()
 
-        await asyncio.sleep(30)
+        await asyncio.sleep(300)
 
 
 @app.on_event("startup")
 async def start_background_task():
     asyncio.create_task(flashback_job())
-
-if __name__ == "__main__":
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=int(os.getenv("PORT", 8000))
-    )

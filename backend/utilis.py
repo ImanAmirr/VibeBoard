@@ -1,9 +1,9 @@
 from urllib.parse import urlparse
 import requests
 
-IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg")
+IMAGE_EXTENSIONS=(".jpg",".jpeg",".png",".gif",".webp",".bmp",".svg")
 
-def is_image_url(url: str) -> bool:
+def is_image_url(url:str):
     if not url:
         return False
 

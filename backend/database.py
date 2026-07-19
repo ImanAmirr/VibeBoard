@@ -15,10 +15,7 @@ users_collection=db.users
 
 #index
 flashback_collection.create_index("item_id", unique=True)
-db.flashbacks.create_index(
-    "created_at",
-    expireAfterSeconds=86400
-)
+db.flashbacks.create_index("created_at",expireAfterSeconds=86400)
 
 users_collection.create_index("email", unique=True)
 items_collection.create_index("user_id")

@@ -4,7 +4,6 @@ from backend.database import items_collection,boards_collection,flashback_collec
 from backend.models import Item,ItemResponse,Board,BoardResponse,FlashbackResponse,User,UserResponse
 from bson.errors import InvalidId
 from datetime import datetime, timezone
-from backend.storage import save_file
 from backend.auth import verify_token,admin_required
 from backend.services.item_service import (
     create_item as create_item_service,
@@ -26,7 +25,6 @@ from backend.services.item_service import (
     make_user as make_user_service,
     get_all_boards as get_all_boards_service,
     delete_any_board as delete_any_board_service,
-    upload_file as upload_file_service,
     get_me as get_me_service,
     get_explore_items as get_explore_items_service
     )
@@ -127,26 +125,12 @@ def get_all_boards(db=Depends(getdb),user=Depends(admin_required)):
 def delete_any_board(id:str,db=Depends(getdb),user=Depends(admin_required)):
     return delete_any_board_service(id,db,user)
 
-#upload file 
-@router.post("/upload")
-def upload_file(file:UploadFile=File(...)):
-    return upload_file_service(file)
-
 #personal information
 @router.get("/me",response_model=UserResponse)
 def get_me(db=Depends(getdb),user=Depends(verify_token)):
     return get_me_service(db,user)
 
+#explore page
 @router.get("/explore")
-def explore_items(
-    limit: int = 20,
-    skip: int = 0,
-    db=Depends(getdb),
-    user=Depends(verify_token)
-):
-    return get_explore_items_service(
-        limit,
-        skip,
-        db,
-        user
-    )
+def explore_items(limit:int=20,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
+    return get_explore_items_service(limit,skip,db,user)

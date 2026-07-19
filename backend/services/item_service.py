@@ -2,7 +2,6 @@ from bson import ObjectId
 from fastapi import HTTPException
 from datetime import datetime,timezone
 from bson.errors import InvalidId
-from backend.storage import save_file
 from backend.cache import set_cache,delete_cache,get_cache
 from backend.task import process_item,process_board
 from backend.redis_conn import q
@@ -10,8 +9,6 @@ from backend.utilis import is_image_url
 from backend.task import process_flashback_item
 
 #ITEM ENDPOINTS
-
-
 def create_item(item, db, user):
 
     try:
@@ -48,6 +45,7 @@ def create_item(item, db, user):
             "is_image": is_image_url(data_item["url"])
         }
     }
+
 
 def get_items(vibe,search, limit,skip,db,user):
 
@@ -86,6 +84,7 @@ def get_items(vibe,search, limit,skip,db,user):
         set_cache(cache_key,items)
 
     return items
+    
 
 def get_item(id,db,user):
 
@@ -139,8 +138,8 @@ def update_item(id,item,db,user):
         raise HTTPException(status_code=404,detail="board not found")
     
     data_item=item.model_dump()
-    data_item["url"] = str(data_item["url"])  # <-- add this line
-    data_item.pop("is_saved_copy", None)  # never let edits touch this flag
+    data_item["url"] = str(data_item["url"])
+    data_item.pop("is_saved_copy", None) 
     data_item["updated_at"]=datetime.now(timezone.utc)
 
     result=db.items.update_one({'_id': obj_id,'user_id':user['id']},{"$set":data_item})
@@ -181,7 +180,6 @@ def create_board(board,db,user):
     data_board["updated_at"]=datetime.now(timezone.utc)
 
     result = db.boards.insert_one(data_board)
-    q.enqueue(process_board, str(result.inserted_id))
 
     delete_cache(f"boards:{user['id']}:all")
     delete_cache("admin:boards:all")
@@ -248,9 +246,7 @@ def get_board(id,db,user):
     
     if not board_data:
         raise HTTPException(status_code=404,detail="board not found")
-    
-
-    
+        
     result={
         "id":str(board_data["_id"]),
         "name":board_data["name"],
@@ -343,9 +339,7 @@ def get_boarditems(board_id,db,user):
 
 def get_flashback(db,user):
 
-    flashback_cursor = db.flashbacks.find({
-        "user_id": user["id"]
-    }).sort("_id",-1)
+    flashback_cursor = db.flashbacks.find({"user_id": user["id"]}).sort("_id",-1)
 
     flashbacks=[]
 
@@ -494,20 +488,13 @@ def delete_any_board(id,db,user):
     
     return{"message":"Board deleted successfully"}
 
-def upload_file(file):
-    if not file:
-        raise HTTPException(status_code=400,detail="file not found")
-    
-    path=save_file(file)
-
-    return{
-        "message":"File uploaded successfully",
-        "file_path": path
-    }
+#personal information
 
 def get_me(db,user):
     return user
 
+
+#explore endpoint
 
 def get_explore_items(limit, skip, db, user):
 
