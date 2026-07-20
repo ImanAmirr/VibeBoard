@@ -6,6 +6,7 @@ from jose import jwt,JWTError
 from datetime import datetime,timezone,timedelta
 from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
 from backend.config import SECRET_KEY,ALGORITHM,TOKEN_TIME
+from backend.cache import delete_cache
 
 
 auth_router=APIRouter()
@@ -21,27 +22,29 @@ def hash_password(password:str):
 def verify_password(plain_password:str,hashed_password:str):
     return pwd_context.verify(plain_password,hashed_password)
 
-
 #endpoints
 @auth_router.post("/signup")
-def signup(user:User,db=Depends(getdb)):
-    existing=db.users.find_one({"email":user.email})
+def signup(user: User, db=Depends(getdb)):
+    existing = db.users.find_one({"email": user.email})
 
     if existing:
         raise HTTPException(status_code=400, detail="user already exists")
-    
-    user_data={
-        "email":user.email,
-        "password":hash_password(user.password),
+
+    user_data = {
+        "email": user.email,
+        "password": hash_password(user.password),
         "role": "user"
     }
-     
-    result=db.users.insert_one(user_data)
+
+    result = db.users.insert_one(user_data)
+
+    delete_cache("admin:users:all")
 
     return {
         "id": str(result.inserted_id),
         "email": user.email
     }
+
 
 @auth_router.post("/login")
 def login(user:User, db=Depends(getdb)):
