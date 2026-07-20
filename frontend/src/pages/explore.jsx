@@ -125,8 +125,6 @@ export default function Explore() {
                     {!item.is_image && (
 
                         <a
-                        
-                        
                             href={item.url}
                             target="_blank"
                             rel="noreferrer"

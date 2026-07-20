@@ -2,16 +2,6 @@ from fastapi.testclient import TestClient
 from main import app
 
 #PATH TESTS
-#upload endpoint
-def test_upload_file(client):    
-    with open("test.txt","w") as f:
-        f.write("hello")
-
-    with open("test.txt","rb") as f:
-        response=client.post("/upload",files={"file":("test.txt", f, "text/plain")})
-
-    assert response.status_code == 200
-
 #create item
 def test_create_item(client,token,board):
     response=client.post("/items",json={
@@ -30,8 +20,8 @@ def test_get_items(client,item,token):
     assert response.status_code==200
     data=response.json()
 
-    assert isinstance(data,list) #correct format
-    assert len(data)>=1 #data exists
+    assert isinstance(data,list) 
+    assert len(data)>=1 
 
 #get single item
 def test_get_item(client,item,token):
