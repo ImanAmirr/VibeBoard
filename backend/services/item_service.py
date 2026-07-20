@@ -381,6 +381,7 @@ def get_users(db, user, limit=50, skip=0):
     return result
 
 
+
 def get_user(id, db, user):
     try:
         user_id = ObjectId(id)
@@ -445,7 +446,6 @@ def make_user(id,db,user):
     return{"message":"Updated successfully"}
 
 def get_all_boards(db, user, limit=50, skip=0):
-    print("get_all_boards called")
 
     cache_key = "admin:boards:all"
 
@@ -462,31 +462,36 @@ def get_all_boards(db, user, limit=50, skip=0):
             "id": str(b["_id"]),
             "name": b["name"],
             "description": b.get("description"),
-            "is_private": b.get("is_private", True),   # <-- add this line
+            "is_private": b.get("is_private", True),   
             "created_at": b["created_at"],
             "updated_at": b["updated_at"],
         })
 
     set_cache(cache_key, boards)
-    print("Returning", len(boards), "boards")
-
+   
     return boards
 
 
-def delete_any_board(id,db,user):
+def delete_any_board(id, db, user):
     try:
-        board_id=ObjectId(id)
+        board_id = ObjectId(id)
     except InvalidId:
-        raise HTTPException(status_code=400,detail="Invalid ID")
-    
-    result=db.boards.delete_one({"_id":board_id})
+        raise HTTPException(status_code=400, detail="Invalid ID")
 
-    if result.deleted_count==0:
-        raise HTTPException(status_code=404,detail="Board not found")
-    
+    board = db.boards.find_one({"_id": board_id})
+    if not board:
+        raise HTTPException(status_code=404, detail="Board not found")
+
+    result = db.boards.delete_one({"_id": board_id})
+
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Board not found")
+
+    delete_cache(f"board:{board['user_id']}:{id}")
+    delete_cache(f"boards:{board['user_id']}:all")
     delete_cache("admin:boards:all")
-    
-    return{"message":"Board deleted successfully"}
+
+    return {"message": "Board deleted successfully"}
 
 #personal information
 
