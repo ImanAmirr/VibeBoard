@@ -10,9 +10,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from rq import Queue
 from backend.redis_conn import redis_conn
 from backend.task import process_flashback_item
-import os
-import uvicorn
-
 
 app = FastAPI()
 
