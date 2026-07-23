@@ -27,7 +27,8 @@ from backend.services.item_service import (
     get_all_boards as get_all_boards_service,
     delete_any_board as delete_any_board_service,
     get_me as get_me_service,
-    get_explore_items as get_explore_items_service
+    get_explore_items as get_explore_items_service,
+    generate_item_note as generate_item_note_service
     )
 
 router = APIRouter()
@@ -139,4 +140,4 @@ def explore_items(limit:int=20,skip:int=0,db=Depends(getdb),user=Depends(verify_
 #generate note
 @router.post("/items/generate-note",response_model=GenerateNoteResponse)
 def generate_note_route(item:GenerateNoteRequest,db=Depends(getdb),user=Depends(verify_token)):
-    return generate_note_service(item,db,user)
+    return generate_item_note_service(item,db,user)
