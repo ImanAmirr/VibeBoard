@@ -8,7 +8,7 @@ class Item(BaseModel):
     title:str=Field(...,min_length=2,max_length=50)
     url:HttpUrl
     vibe:str=Field(...,min_length=2,max_length=50)
-    note:Optional[str]=Field(None,max_length=30)
+    note:Optional[str]=Field(None,max_length=100)
     is_saved_copy:bool=False
 
 
