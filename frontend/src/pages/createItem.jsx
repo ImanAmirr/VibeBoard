@@ -12,6 +12,7 @@ export default function CreateItem() {
     const [note, setNote] = useState("");
     const [errors, setErrors] = useState({});
     const [serverError, setServerError] = useState("");
+    const[isGenerating,setIsGenerating]=useState(false);
 
     const validate = () => {
         const newErrors = {};
@@ -40,6 +41,49 @@ export default function CreateItem() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+
+    const handleGenerateNote = async () => {
+        setServerError("");
+    
+        if (!validate()) {
+            return;
+        }
+    
+        try {
+            setIsGenerating(true);
+    
+            const token = localStorage.getItem("token");
+    
+            const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/items/generate-note`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        title,
+                        url,
+                        vibe,
+                    }),
+                }
+            );
+    
+            const data = await response.json();
+    
+            if (!response.ok) {
+                throw new Error(data.detail || "Failed to generate note.");
+            }
+    
+            setNote(data.note);
+        } catch (err) {
+            setServerError(err.message || "Something went wrong.");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
 
     const handleItem = async (e) => {
         e.preventDefault();
@@ -81,7 +125,7 @@ export default function CreateItem() {
             setServerError("Something went wrong. Please try again.");
         }
     };
-
+    
     return (
         <div className="create-item-page">
             <div className="popup">
@@ -129,6 +173,13 @@ export default function CreateItem() {
                     />
 
                     {serverError && <p className="form-error">{serverError}</p>}
+
+                    <button
+                    type="button"
+                    onClick={handleGenerateNote}
+                    disabled={isGenerating}>
+                   {isGenerating ? "Generating..." : "✨ Generate with AI"}
+                   </button>
 
                     <div className="button-group">
                         <button
