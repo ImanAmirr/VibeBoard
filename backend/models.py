@@ -8,7 +8,7 @@ class Item(BaseModel):
     title:str=Field(...,min_length=2,max_length=50)
     url:HttpUrl
     vibe:str=Field(...,min_length=2,max_length=50)
-    note:Optional[str]=Field(None,max_length=100)
+    note:Optional[str]=Field(None,max_length=30)
     is_saved_copy:bool=False
 
 
@@ -61,3 +61,13 @@ class UserResponse(BaseModel):
     id:str
     email:EmailStr
     role:str
+
+#note model
+class GenerateNoteRequest(BaseModel):
+    title:str=Field(...,min_length=2,max_length=20)
+    url:HttpUrl
+    vibe:str=Field(...,min_length=2,max_length=50)
+    
+
+class GenerateNoteResponse(BaseModel):
+    note:str

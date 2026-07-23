@@ -1,10 +1,11 @@
 from fastapi import APIRouter,status,HTTPException,Depends,UploadFile,File
 from bson import ObjectId
 from backend.database import items_collection,boards_collection,flashback_collection,users_collection,getdb
-from backend.models import Item,ItemResponse,Board,BoardResponse,FlashbackResponse,User,UserResponse
+from backend.models import Item,ItemResponse,Board,BoardResponse,FlashbackResponse,User,UserResponse,GenerateNoteRequest,GenerateNoteResponse
 from bson.errors import InvalidId
 from datetime import datetime, timezone
 from backend.auth import verify_token,admin_required
+from backend.services.ai_service import generate_note as generate_note_service
 from backend.services.item_service import (
     create_item as create_item_service,
     get_items as get_items_service,
@@ -134,3 +135,8 @@ def get_me(db=Depends(getdb),user=Depends(verify_token)):
 @router.get("/explore")
 def explore_items(limit:int=20,skip:int=0,db=Depends(getdb),user=Depends(verify_token)):
     return get_explore_items_service(limit,skip,db,user)
+
+#generate note
+@router.post("/items/generate-note",response_model=GenerateNoteResponse)
+def generate_note_route(item:GenerateNoteRequest,db=Depends(getdb),user=Depends(verify_token)):
+    return generate_note_service(item,db,user)
