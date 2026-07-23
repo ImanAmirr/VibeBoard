@@ -372,16 +372,16 @@
 }
 
 .popup-create {
-  background: var(--tape-coral);
-  color: var(--paper);
-  font-weight: 600;
-  box-shadow: 0 6px 16px rgba(255,107,87,0.4);
+  background: var(--tape-coral) !important;
+  color: var(--paper) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 6px 16px rgba(255,107,87,0.4) !important;
 }
 
 .popup-create:hover {
   transform: translateY(-2px);
-  background: #e85a47;
-  box-shadow: 0 10px 22px rgba(255,107,87,0.45);
+  background: #e85a47 !important;
+  box-shadow: 0 10px 22px rgba(255,107,87,0.45) !important;
 }
 
 .popup-cancel {
