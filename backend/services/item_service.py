@@ -16,7 +16,7 @@ def create_item(item, db, user):
     except InvalidId:
         raise HTTPException(status_code=400, detail="invalid board id")
 
-    board = db.boards.find_one({"_id": board_obj_id, "user_id": user["id"]})
+    board= db.boards.find_one({"_id": board_obj_id, "user_id": user["id"]})
     if not board:
         raise HTTPException(status_code=404, detail="board not found")
 
