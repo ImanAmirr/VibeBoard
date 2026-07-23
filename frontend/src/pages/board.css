@@ -393,28 +393,30 @@
 }
 
 .popup-create {
-  background: var(--ink);
-  color: var(--paper);
-  font-weight: 600;
-  box-shadow: 0 6px 16px rgba(35,32,25,0.35);
-}
-
-.popup-create:hover {
-  transform: translateY(-2px);
-  background: #3a3527;
-  box-shadow: 0 10px 22px rgba(35,32,25,0.4);
-}
-
-.popup-cancel {
   background: transparent;
   color: #6b6552;
   border: 1px solid rgba(35,32,25,0.2);
   box-shadow: none;
 }
 
-.popup-cancel:hover {
+.popup-create:hover {
+
   background: rgba(35,32,25,0.05);
   transform: none;
+
+}
+
+.popup-cancel {
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(35,32,25,0.35);
+}
+
+.popup-cancel:hover {
+  transform: translateY(-2px);
+  background: #3a3527;
+  box-shadow: 0 10px 22px rgba(35,32,25,0.4);
 }
 
 .edit-btn {
