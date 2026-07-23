@@ -176,6 +176,7 @@ export default function CreateItem() {
 
                     <button
                     type="button"
+                    className="generate-btn"
                     onClick={handleGenerateNote}
                     disabled={isGenerating}>
                    {isGenerating ? "Generating..." : "✨ Generate with AI"}
