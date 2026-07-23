@@ -337,7 +337,8 @@
   border-bottom-color: var(--tape-coral);
 }
 
-.popup button {
+.popup-create,
+.popup-cancel {
   padding: 12px 22px;
   margin-right: 10px;
   font-family: 'IBM Plex Mono', monospace;
@@ -347,29 +348,7 @@
   border: none;
   cursor: pointer;
   border-radius: 4px;
-  background: var(--ink);
-  color: var(--paper);
-  font-weight: 600;
-  box-shadow: 0 6px 16px rgba(35,32,25,0.35);
   transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
-}
-
-.popup button:hover {
-  transform: translateY(-2px);
-  background: #3a3527;
-  box-shadow: 0 10px 22px rgba(35,32,25,0.4);
-}
-
-.popup button:last-child {
-  background: transparent;
-  color: #6b6552;
-  border: 1px solid rgba(35,32,25,0.2);
-  box-shadow: none;
-}
-
-.popup button:last-child:hover {
-  background: rgba(35,32,25,0.05);
-  transform: none;
 }
 
 .button-group {
@@ -393,30 +372,28 @@
 }
 
 .popup-create {
+  background: var(--tape-coral);
+  color: var(--paper);
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(255,107,87,0.4);
+}
+
+.popup-create:hover {
+  transform: translateY(-2px);
+  background: #e85a47;
+  box-shadow: 0 10px 22px rgba(255,107,87,0.45);
+}
+
+.popup-cancel {
   background: transparent;
   color: #6b6552;
   border: 1px solid rgba(35,32,25,0.2);
   box-shadow: none;
 }
 
-.popup-create:hover {
-
+.popup-cancel:hover {
   background: rgba(35,32,25,0.05);
   transform: none;
-
-}
-
-.popup-cancel {
-  background: var(--ink);
-  color: var(--paper);
-  font-weight: 600;
-  box-shadow: 0 6px 16px rgba(35,32,25,0.35);
-}
-
-.popup-cancel:hover {
-  transform: translateY(-2px);
-  background: #3a3527;
-  box-shadow: 0 10px 22px rgba(35,32,25,0.4);
 }
 
 .edit-btn {
