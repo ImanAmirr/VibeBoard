@@ -59,16 +59,20 @@ Service Layer
 ### Project Structure
 ```text
 .
-├── main.py
-├── routes.py
-├── services.py
+backend/
+├── routes/          
+├── services/        
+├── tests/
 ├── auth.py
-├── database.py
 ├── cache.py
+├── config.py
+├── database.py
+├── main.py
+├── models.py
 ├── redis_conn.py
 ├── task.py
-├── storage.py
-└── ai_service.py
+├── utilis.py
+└── worker.py
 ```
 
 | File          | Responsibility          |
