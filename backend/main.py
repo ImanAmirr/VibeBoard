@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from backend.routes.item_routes import router  
 from backend.auth import auth_router
 import asyncio
+import threading
 from datetime import datetime, timezone, timedelta
 from backend.database import db
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,25 +34,40 @@ app.include_router(auth_router)
 def home():
     return {"message": "FastAPI is running"}
 
-def flashback_job():
-    try:
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+async def flashback_job():
+    while True:
+        try:
+            cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
 
-        items = db.items.find({
-            "created_at": {"$lte": cutoff},
-            "flashback_sent": {"$ne": True},
-        })
+            items = db.items.find({
+                "created_at": {"$lte": cutoff},
+                "flashback_sent": {"$ne": True},
+            })
 
-        for item in items:
-            result = db.items.update_one(
-                {"_id": item["_id"], "flashback_sent": {"$ne": True}},
-                {"$set": {"flashback_sent": True}},
-            )
+            for item in items:
+                result = db.items.update_one(
+                    {"_id": item["_id"], "flashback_sent": {"$ne": True}},
+                    {"$set": {"flashback_sent": True}},
+                )
 
-            if result.modified_count == 1:
-                q.enqueue(process_flashback_item, str(item["_id"]))
+                if result.modified_count == 1:
+                    q.enqueue(process_flashback_item, str(item["_id"]))
 
-    except Exception:
-        import traceback
-        print("FLASHBACK JOB ERROR:")
-        traceback.print_exc()
+        except Exception:
+            import traceback
+            print("FLASHBACK JOB ERROR:")
+            traceback.print_exc()
+
+        await asyncio.sleep(300)
+
+
+def run_worker():
+    from rq import SimpleWorker
+    worker = SimpleWorker(["default"], connection=redis_conn)
+    worker.work(burst=False)
+
+
+@app.on_event("startup")
+async def start_background_task():
+    asyncio.create_task(flashback_job())
+    threading.Thread(target=run_worker, daemon=True).start()
