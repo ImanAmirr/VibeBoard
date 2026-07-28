@@ -33,13 +33,16 @@ app.include_router(auth_router)
 def home():
     return {"message": "FastAPI is running"}
 
+
 async def flashback_job():
     while True:
         try:
-            cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+            now = datetime.now(timezone.utc)
+            cutoff_start = now - timedelta(hours=24, minutes=5)
+            cutoff_end = now - timedelta(hours=24)
 
             items = db.items.find({
-                "created_at": {"$lte": cutoff},
+                "created_at": {"$gte": cutoff_start, "$lte": cutoff_end},
                 "flashback_sent": {"$ne": True},
             })
 
