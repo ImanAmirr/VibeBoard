@@ -1,13 +1,31 @@
 import { useState, useEffect } from "react";
 import "./admin.css";
-import "./confirm-modal.css";
-import ConfirmModal from "./ConfirmModal";
+
+function ConfirmModal({ open, title, message, confirmLabel = "Delete", onConfirm, onCancel }) {
+    if (!open) return null;
+
+    return (
+        <div className="confirm-overlay" onClick={onCancel}>
+            <div className="confirm-card" onClick={(e) => e.stopPropagation()}>
+                <span className="confirm-eyebrow">{title}</span>
+                <p className="confirm-message">{message}</p>
+                <div className="confirm-actions">
+                    <button className="confirm-cancel-btn" onClick={onCancel}>
+                        Cancel
+                    </button>
+                    <button className="confirm-delete-btn" onClick={onConfirm}>
+                        {confirmLabel}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function Admin() {
 
     const [users, setUsers] = useState([]);
     const [boards, setBoards] = useState([]);
-
     const [pendingDelete, setPendingDelete] = useState(null);
 
     const handleDeleteUser = async (userId) => {

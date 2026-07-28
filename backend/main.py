@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from backend.routes.item_routes import router  
 from backend.auth import auth_router
 import asyncio
-import threading
 from datetime import datetime, timezone, timedelta
 from backend.database import db
 from fastapi.middleware.cors import CORSMiddleware
@@ -61,13 +60,6 @@ async def flashback_job():
         await asyncio.sleep(300)
 
 
-def run_worker():
-    from rq import SimpleWorker
-    worker = SimpleWorker(["default"], connection=redis_conn)
-    worker.work(burst=False)
-
-
 @app.on_event("startup")
 async def start_background_task():
     asyncio.create_task(flashback_job())
-    threading.Thread(target=run_worker, daemon=True).start()
